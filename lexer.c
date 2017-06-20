@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 #define SUCCESS  0
 #define FAILURE -1
@@ -36,7 +37,8 @@ typedef struct {
     //stores type, int value, or String
     tokentype type;
     int       value;
-    char    *characters;
+    //TODO: refactor this? No token can be longer than 1023
+    char    characters[1023];
 } token;
 
 /*
@@ -76,7 +78,6 @@ void returnChar (char c) {
  */
 void printToken (token t) {
     switch (t.type) {
-        //TODO: t.character returns
         case tPUNCTUATION: printf("(%s, %s)", "Punctuation", t.characters); break;
         case tINT: printf("(%s, %d)", "Integer", t.value); break;
         case tSTRING: printf("(%s, %s)", "String", t.characters); break;
@@ -96,7 +97,8 @@ token scan() {
     state s = sSTART;
     token t;
     int   value = 0;
-    char *characters;
+    int   charIndex = 0;
+    //char  characters[1023];
 
     while (c = nextChar()) {
 
@@ -104,14 +106,14 @@ token scan() {
             case sSTART:
                 if (isspace(c)) break;
                 //set the value of the token
-                //TODO: this is broken
-                *t.characters = c;
+                strcpy(t.characters, &c);
                 switch (c) {
                     case EOF: t.type = tEOF;    return(t);
                     //assumes () are separate and not enclosing
-                    case '(': t.type = tPUNCTUATION;   return(t);
-                    case ')': t.type = tPUNCTUATION;   return(t);
-                    case '"': s = sSTRING; break;
+                    case '(': t.type = tPUNCTUATION;  return(t);
+                    case ')': t.type = tPUNCTUATION;  return(t);
+                    //set the value to append to if string
+                    //case '"': s = sSTRING;            strcpy(characters, &c); break;
                     //identifier range
                     case '!': t.type = tIDENTIFIER;   return(t);
                     case '$': t.type = tIDENTIFIER;   return(t);
@@ -134,11 +136,16 @@ token scan() {
                     //check lowercase ASCII range
                     case 97 ... 122: t.type = tIDENTIFIER;   return(t);
                     default:
-                        // catch the integer sequences
                         if (isdigit(c)) {
+                            // catch the integer sequences
                             value = c - '0';
                             s = sINT;
-                        } else{
+                        } else if (c == '"') {
+                            //catch string sequences
+                            t.characters[charIndex] = c;
+                            s = sSTRING;
+                        }
+                        else {
                             printf("Fatal Error: %d is an invalid character\n", c);
                             fatalError("Aborting.");
                         }
@@ -157,13 +164,18 @@ token scan() {
                     returnChar(c);
                 }
                 break;
+            //capture a string sequence until a closing quote, up to 1023
             case sSTRING:
-               if (isspace(c) || c == '"') {
-                    //t.characters = characters;
+                //append to current characters
+                charIndex++;
+                if (charIndex < 1023) {
+                    t.characters[charIndex] = c;
+                }
+                if (c == '"') {
                     t.type = tSTRING;
                     return(t);
                 }
-                //TODO: add to token characters
+                break;
             case sIDENTIFIER:
                 //TODO: After the first character, identifers can also contain digits, as well as any of the...
                 //TODO: ... allowable initial characters

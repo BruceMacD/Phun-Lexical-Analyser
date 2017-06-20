@@ -154,7 +154,12 @@ token scan() {
                 break;
             //capture a sequence of integers
             case sINT:
-                if (isdigit(c)) {
+                if (c == EOF){
+                    t.value = value;
+                    t.type = tINT;
+                    return(t);
+                }
+                else if (isdigit(c)) {
                     value = (value * 10) + (c - '0');
                 } else if (isspace(c)) {
                     t.value = value;

@@ -76,7 +76,7 @@ void returnChar (char c) {
  */
 void printToken (token t) {
     switch (t.type) {
-        //TODO: t.value returns
+        //TODO: t.character returns
         case tPUNCTUATION: printf("(%s, %s)", "Punctuation", t.characters); break;
         case tINT: printf("(%s, %d)", "Integer", t.value); break;
         case tSTRING: printf("(%s, %s)", "String", t.characters); break;
@@ -158,15 +158,12 @@ token scan() {
                 }
                 break;
             case sSTRING:
-                if (isalpha(c)) {
-                    //append to characters of token
-                } else if (isspace(c) || c == '"') {
+               if (isspace(c) || c == '"') {
                     //t.characters = characters;
                     t.type = tSTRING;
                     return(t);
-                } else {
-                    returnChar(c);
                 }
+                //TODO: add to token characters
             case sIDENTIFIER:
                 //TODO: After the first character, identifers can also contain digits, as well as any of the...
                 //TODO: ... allowable initial characters

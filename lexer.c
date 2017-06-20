@@ -6,13 +6,14 @@
  * prints out the tokens it finds
  *
  * Built on provided sample code from: http://www.tamimeredith.ca/downloads/csci3136/lexer.c
+ * Must be built using gcc for case ranges
  */
 
 /* 
  * Our grammar:
  *
  * Tokens:
- * (, ), [0-9], "strings", identifiers (upper case, lower case, extended chars), eof
+ * (), [0-9], "strings", identifiers (upper case, lower case, extended chars), eof
  *
  * whitespace, new line, and eof end a token
  *
@@ -29,11 +30,13 @@
 /*
  * Types for lexical analysis
  */
-typedef enum { sSTART, sN, sNE, sINT } state;
-typedef enum { tPLUS, tMINUS, tTIMES, tDIVIDE, tNEG, tINT, tEOF } tokentype;
+typedef enum { sSTART, sSTRING, sIDENTIFIER, sINT } state;
+typedef enum { tPUNCTUATION, tINT, tSTRING, tIDENTIFIER, tEOF } tokentype;
 typedef struct {
+    //stores type, int value, or String
     tokentype type;
     int       value;
+    char    *characters;
 } token;
 
 /*
@@ -53,14 +56,10 @@ void fatalError (char *msg) {
 
 /*
  * Read one character at a time from the input file
- * and update the index for error messages
  */
 char nextChar () {
     char c = fgetc (ifp);
     idx++;
-#if DEBUG
-    printf("Read character %d: %c\n", idx, c);
-#endif
     return(c);
 }
 
@@ -76,14 +75,12 @@ void returnChar (char c) {
  * Used for debugging only.
  */
 void printToken (token t) {
-    printf("Token: ");
     switch (t.type) {
-        case tPLUS: printf("+"); break;
-        case tMINUS: printf("-"); break;
-        case tTIMES: printf("*"); break;
-        case tDIVIDE: printf("/"); break;
-        case tNEG: printf("negation operator"); break;
-        case tINT: printf("Integer %d", t.value); break;
+        //TODO: t.value returns
+        case tPUNCTUATION: printf("(%s, %s)", "Punctuation", t.characters); break;
+        case tINT: printf("(%s, %d)", "Integer", t.value); break;
+        case tSTRING: printf("(%s, %s)", "String", t.characters); break;
+        case tIDENTIFIER: printf("(%s, %s)", "Identifier", t.characters); break;
         case tEOF: printf("End of File"); break;
         default: break;
     }
@@ -99,43 +96,56 @@ token scan() {
     state s = sSTART;
     token t;
     int   value = 0;
+    char *characters;
 
     while (c = nextChar()) {
 
         switch (s) {
             case sSTART:
                 if (isspace(c)) break;
+                //set the value of the token
+                //TODO: this is broken
+                *t.characters = c;
                 switch (c) {
                     case EOF: t.type = tEOF;    return(t);
-                    case '+': t.type = tPLUS;   return(t);
-                    case '-': t.type = tMINUS;  return(t);
-                    case '*': t.type = tTIMES;  return(t);
-                    case '/': t.type = tDIVIDE; return(t);
-                    case 'n': s = sN; break;
+                    //assumes () are separate and not enclosing
+                    case '(': t.type = tPUNCTUATION;   return(t);
+                    case ')': t.type = tPUNCTUATION;   return(t);
+                    case '"': s = sSTRING; break;
+                    //identifier range
+                    case '!': t.type = tIDENTIFIER;   return(t);
+                    case '$': t.type = tIDENTIFIER;   return(t);
+                    case '%': t.type = tIDENTIFIER;   return(t);
+                    case '&': t.type = tIDENTIFIER;   return(t);
+                    case '*': t.type = tIDENTIFIER;   return(t);
+                    case '/': t.type = tIDENTIFIER;   return(t);
+                    case ':': t.type = tIDENTIFIER;   return(t);
+                    case '<': t.type = tIDENTIFIER;   return(t);
+                    case '=': t.type = tIDENTIFIER;   return(t);
+                    case '>': t.type = tIDENTIFIER;   return(t);
+                    case '?': t.type = tIDENTIFIER;   return(t);
+                    case '^': t.type = tIDENTIFIER;   return(t);
+                    case '_': t.type = tIDENTIFIER;   return(t);
+                    case '~': t.type = tIDENTIFIER;   return(t);
+                    case '+': t.type = tIDENTIFIER;   return(t);
+                    case '-': t.type = tIDENTIFIER;   return(t);
+                    //check uppercase ASCII range
+                    case 65 ... 90: t.type = tIDENTIFIER;   return(t);
+                    //check lowercase ASCII range
+                    case 97 ... 122: t.type = tIDENTIFIER;   return(t);
                     default:
+                        // catch the integer sequences
                         if (isdigit(c)) {
                             value = c - '0';
                             s = sINT;
                         } else{
-                            fatalError("Invalid character X");
+                            printf("Fatal Error: %d is an invalid character\n", c);
+                            fatalError("Aborting.");
                         }
                         break;
                 }
                 break;
-            case sN:
-                if (c == 'e')
-                    s = sNE;
-                else
-                    fatalError("Invalid token");
-                break;
-            case sNE:
-                if (c == 'g') {
-                    t.type = tNEG;
-                    return(t);
-                }
-                else
-                    fatalError("Invalid token");
-                break;
+            //capture a sequence of integers
             case sINT:
                 if (isdigit(c)) {
                     value = (value * 10) + (c - '0');
@@ -147,6 +157,19 @@ token scan() {
                     returnChar(c);
                 }
                 break;
+            case sSTRING:
+                if (isalpha(c)) {
+                    //append to characters of token
+                } else if (isspace(c) || c == '"') {
+                    //t.characters = characters;
+                    t.type = tSTRING;
+                    return(t);
+                } else {
+                    returnChar(c);
+                }
+            case sIDENTIFIER:
+                //TODO: After the first character, identifers can also contain digits, as well as any of the...
+                //TODO: ... allowable initial characters
             default:
                 if (c == EOF) t.type = tEOF; return(t);
                 if (!isspace(c))
@@ -164,11 +187,11 @@ int main (int argc, char** argv) {
     token t;
     ifp = fopen (argv[1], "r");
     name = argv[1];
+    //shows format to user
+    printf("(type, value)\n");
     while (1) {
         t = scan();
-#if DEBUG
         printToken(t);
-#endif
         if (t.type == tEOF) break;
     }
     return (SUCCESS);

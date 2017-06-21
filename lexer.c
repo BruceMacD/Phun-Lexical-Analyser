@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define SUCCESS  0
 #define FAILURE -1
@@ -73,7 +74,37 @@ void returnChar (char c) {
 }
 
 /*
- * Used for debugging only.
+ * convenience method for checking identifiers
+ */
+bool isValidIdentifier(char c) {
+    switch (c) {
+        case '!':    return true;
+        case '$':    return true;
+        case '%':    return true;
+        case '&':    return true;
+        case '*':    return true;
+        case '/':    return true;
+        case ':':    return true;
+        case '<':    return true;
+        case '=':    return true;
+        case '>':    return true;
+        case '?':    return true;
+        case '^':    return true;
+        case '_':    return true;
+        case '~':    return true;
+        case '+':    return true;
+        case '-':    return true;
+            //check uppercase range
+        case 'A' ... 'Z':    return true;
+            //check lowercase range
+        case 'a' ... 'z':    return true;
+        default:
+            return false;
+    }
+}
+
+/*
+ * Print tokens in desired format
  */
 void printToken (token t) {
     switch (t.type) {
@@ -113,29 +144,6 @@ token scan() {
                     //assumes () are separate and not enclosing
                     case '(': t.type = tPUNCTUATION;  return(t);
                     case ')': t.type = tPUNCTUATION;  return(t);
-                    //set the value to append to if string
-                    //case '"': s = sSTRING;            strcpy(characters, &c); break;
-                    //identifier range
-                    case '!': t.type = tIDENTIFIER;   return(t);
-                    case '$': t.type = tIDENTIFIER;   return(t);
-                    case '%': t.type = tIDENTIFIER;   return(t);
-                    case '&': t.type = tIDENTIFIER;   return(t);
-                    case '*': t.type = tIDENTIFIER;   return(t);
-                    case '/': t.type = tIDENTIFIER;   return(t);
-                    case ':': t.type = tIDENTIFIER;   return(t);
-                    case '<': t.type = tIDENTIFIER;   return(t);
-                    case '=': t.type = tIDENTIFIER;   return(t);
-                    case '>': t.type = tIDENTIFIER;   return(t);
-                    case '?': t.type = tIDENTIFIER;   return(t);
-                    case '^': t.type = tIDENTIFIER;   return(t);
-                    case '_': t.type = tIDENTIFIER;   return(t);
-                    case '~': t.type = tIDENTIFIER;   return(t);
-                    case '+': t.type = tIDENTIFIER;   return(t);
-                    case '-': t.type = tIDENTIFIER;   return(t);
-                    //check uppercase range
-                    case 'A' ... 'Z': t.type = tIDENTIFIER;   return(t);
-                    //check lowercase range
-                    case 'a' ... 'z': t.type = tIDENTIFIER;   return(t);
                     default:
                         if (isdigit(c)) {
                             // catch the integer sequences
@@ -145,6 +153,10 @@ token scan() {
                             //catch string sequences
                             t.characters[charIndex] = c;
                             s = sSTRING;
+                        } else if (isValidIdentifier(c)) {
+                            //catch token sequences
+                            t.characters[charIndex] = c;
+                            s = sIDENTIFIER;
                         }
                         else {
                             printf("Fatal Error: %d is an invalid character\n", c);
@@ -183,8 +195,20 @@ token scan() {
                 }
                 break;
             case sIDENTIFIER:
-                //TODO: After the first character, identifers can also contain digits, as well as any of the...
-                //TODO: ... allowable initial characters
+                //After the first character, identifers can also contain digits, as well as any of the
+                //allowable initial characters
+                charIndex++;
+                if (isspace(c)) {
+                    t.type = tIDENTIFIER;
+                    return (t);
+                } else if (charIndex < 1023) {
+                    if (isValidIdentifier(c) || isdigit(c)) {
+                        t.characters[charIndex] = c;
+                    }
+                } else {
+                    returnChar(c);
+                }
+                break;
             default:
                 if (c == EOF) t.type = tEOF; return(t);
                 if (!isspace(c))

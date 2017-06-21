@@ -1,6 +1,6 @@
 /* 
  * Phun Lexical Analyzer
- * Rebecca Ansems, Brian Bremner, Bruce MacDonald, June 2017
+ * Rebecca Ansems, Brandon Bremner, Bruce MacDonald, June 2017
  *
  * takes a single command line parameter, the name of a file to analyse
  * prints out the tokens it finds
@@ -112,29 +112,6 @@ token scan() {
                     //assumes () are separate and not enclosing
                     case '(': t.type = tPUNCTUATION;  return(t);
                     case ')': t.type = tPUNCTUATION;  return(t);
-                    //set the value to append to if string
-                    //case '"': s = sSTRING;            strcpy(characters, &c); break;
-                    //identifier range
-                    case '!': t.type = tIDENTIFIER;   return(t);
-                    case '$': t.type = tIDENTIFIER;   return(t);
-                    case '%': t.type = tIDENTIFIER;   return(t);
-                    case '&': t.type = tIDENTIFIER;   return(t);
-                    case '*': t.type = tIDENTIFIER;   return(t);
-                    case '/': t.type = tIDENTIFIER;   return(t);
-                    case ':': t.type = tIDENTIFIER;   return(t);
-                    case '<': t.type = tIDENTIFIER;   return(t);
-                    case '=': t.type = tIDENTIFIER;   return(t);
-                    case '>': t.type = tIDENTIFIER;   return(t);
-                    case '?': t.type = tIDENTIFIER;   return(t);
-                    case '^': t.type = tIDENTIFIER;   return(t);
-                    case '_': t.type = tIDENTIFIER;   return(t);
-                    case '~': t.type = tIDENTIFIER;   return(t);
-                    case '+': t.type = tIDENTIFIER;   return(t);
-                    case '-': t.type = tIDENTIFIER;   return(t);
-                    //check uppercase ASCII range
-                    case 65 ... 90: t.type = tIDENTIFIER;   return(t);
-                    //check lowercase ASCII range
-                    case 97 ... 122: t.type = tIDENTIFIER;   return(t);
                     default:
                         if (isdigit(c)) {
                             // catch the integer sequences
@@ -145,6 +122,10 @@ token scan() {
                             t.characters[charIndex] = c;
                             s = sSTRING;
                         }
+			else if((c >= 'A' && c<='Z') || (c >= 'a' && c<= 'z') || c == '!' || c == '$' || c =='%' || c == '&' || c == '*' || c== '/' || c == ':' || c== '<' || c=='=' || c=='>' || c=='?' || c=='^' || c== '_' || c== '~' || c== '+' || c=='-'){
+				t.characters[charIndex] = c; 
+				s = sIDENTIFIER;
+			}
                         else {
                             printf("Fatal Error: %d is an invalid character\n", c);
                             fatalError("Aborting.");
@@ -176,9 +157,18 @@ token scan() {
                     return(t);
                 }
                 break;
-            case sIDENTIFIER:
-                //TODO: After the first character, identifers can also contain digits, as well as any of the...
-                //TODO: ... allowable initial characters
+            case sIDENTIFIER:	
+		charIndex++;
+		if(charIndex < 1023 && (c >= 'A' && c<='Z') || (c >= 'a' && c<= 'z') || c == '!' || c == '$' || c =='%' || c == '&' || c == '*' || c== '/' || c == ':' || c== '<' || c=='=' || c=='>' || c=='?' || c=='^' || c== '_' || c== '~' || c== '+' || c=='-'){	
+                    t.characters[charIndex] = c;
+                }
+                else {
+		    t.characters[charIndex] = '\0';
+		    returnChar(c);
+                    t.type = tIDENTIFIER;
+                    return(t);
+                }
+		break;
             default:
                 if (c == EOF) t.type = tEOF; return(t);
                 if (!isspace(c))

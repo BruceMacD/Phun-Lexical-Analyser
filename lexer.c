@@ -37,7 +37,6 @@ typedef struct {
     //stores type, int value, or String
     tokentype type;
     int       value;
-    //TODO: refactor this? No token can be longer than 1023
     char    characters[1023];
 } token;
 
@@ -98,7 +97,9 @@ token scan() {
     token t;
     int   value = 0;
     int   charIndex = 0;
-    //char  characters[1023];
+
+    //clear any previous values
+    memset(&t.characters[0], 0, sizeof(t.characters));
 
     while (c = nextChar()) {
 
@@ -131,10 +132,10 @@ token scan() {
                     case '~': t.type = tIDENTIFIER;   return(t);
                     case '+': t.type = tIDENTIFIER;   return(t);
                     case '-': t.type = tIDENTIFIER;   return(t);
-                    //check uppercase ASCII range
-                    case 65 ... 90: t.type = tIDENTIFIER;   return(t);
-                    //check lowercase ASCII range
-                    case 97 ... 122: t.type = tIDENTIFIER;   return(t);
+                    //check uppercase range
+                    case 'A' ... 'Z': t.type = tIDENTIFIER;   return(t);
+                    //check lowercase range
+                    case 'a' ... 'z': t.type = tIDENTIFIER;   return(t);
                     default:
                         if (isdigit(c)) {
                             // catch the integer sequences
@@ -193,9 +194,6 @@ token scan() {
     }
 }
 
-/*
- * Temporary main. We'll replace this when we add the parser.
- */
 int main (int argc, char** argv) {
 
     token t;

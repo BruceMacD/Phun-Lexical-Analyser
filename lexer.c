@@ -94,9 +94,9 @@ bool isValidIdentifier(char c) {
         case '~':    return true;
         case '+':    return true;
         case '-':    return true;
-            //check uppercase range
+        //check uppercase range
         case 'A' ... 'Z':    return true;
-            //check lowercase range
+        //check lowercase range
         case 'a' ... 'z':    return true;
         default:
             return false;

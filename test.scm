@@ -1,1 +1,1 @@
-'(define sum (lambda (x y) (+ x y)))
+(define sum (lambda (x y) (+ x y)))

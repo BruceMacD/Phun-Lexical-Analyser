@@ -49,19 +49,18 @@ void returnChar (char c) {
 }
 
 /*
- * Temporary main. We'll replace this when we add the parser.
+ * Temporary main. We'll replace this when we add the AST.
  */
 int main (int argc, char** argv) {
 
-    token t;
+    int result;
+
     ifp = fopen (argv[1], "r");
     name = argv[1];
 
-    while (1) {
-        t = scan();
-        printToken(t);
-        if (t.type == tEOF) break;
-    }        
+    result = evaluate(parse());
+    printf("The result of interpreting this file is: %d\n", result);
+
     return (SUCCESS);
 }
 

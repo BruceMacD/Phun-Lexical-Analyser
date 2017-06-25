@@ -23,6 +23,19 @@ typedef struct {
 } token;
 
 /*
+ * Types for AST generation
+ */
+typedef enum { astBEGIN, astEND, astIDENT, astSTRING, astQUOTE, astINT, astEOF} asttype;
+
+typedef struct astS {
+    asttype     type;
+    struct astS *operand1;
+    struct astS *operand2;
+    int         iVal;
+    char       *sVal;
+} node;
+
+/*
  * Function Declarations
  */
 void fatalError (char *msg);
@@ -32,4 +45,8 @@ void returnChar (char c);
 void printToken (token t);
 token scan ();
 
+node *parse();
+node *parseExpr(token t);
+
+int evaluate(node *n);
 /* end of phun.h */

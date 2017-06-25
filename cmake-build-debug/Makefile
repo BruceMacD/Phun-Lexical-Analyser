@@ -123,6 +123,33 @@ Phun_Lexical_Analyser/fast:
 	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/build
 .PHONY : Phun_Lexical_Analyser/fast
 
+eval.o: eval.c.o
+
+.PHONY : eval.o
+
+# target to build an object file
+eval.c.o:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/eval.c.o
+.PHONY : eval.c.o
+
+eval.i: eval.c.i
+
+.PHONY : eval.i
+
+# target to preprocess a source file
+eval.c.i:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/eval.c.i
+.PHONY : eval.c.i
+
+eval.s: eval.c.s
+
+.PHONY : eval.s
+
+# target to generate assembly for a file
+eval.c.s:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/eval.c.s
+.PHONY : eval.c.s
+
 lexer.o: lexer.c.o
 
 .PHONY : lexer.o
@@ -213,6 +240,9 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... edit_cache"
 	@echo "... Phun_Lexical_Analyser"
+	@echo "... eval.o"
+	@echo "... eval.i"
+	@echo "... eval.s"
 	@echo "... lexer.o"
 	@echo "... lexer.i"
 	@echo "... lexer.s"

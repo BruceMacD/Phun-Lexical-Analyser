@@ -53,13 +53,11 @@ void returnChar (char c) {
  */
 int main (int argc, char** argv) {
 
-    int result;
-
     ifp = fopen (argv[1], "r");
     name = argv[1];
 
-    result = evaluate(parse());
-    printf("The result of interpreting this file is: %d\n", result);
+    //create and parse AST
+    evaluate(parse());
 
     return (SUCCESS);
 }

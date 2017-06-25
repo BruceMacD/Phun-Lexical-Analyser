@@ -1,3 +1,1 @@
-!((( () 42
-4323 "abcZ" "affdsafdsfsadf"
-as FD %543gdgf@#
+(define sum (lambda (x y) (+ x y)))

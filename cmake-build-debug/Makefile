@@ -150,6 +150,60 @@ lexer.c.s:
 	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.s
 .PHONY : lexer.c.s
 
+main.o: main.c.o
+
+.PHONY : main.o
+
+# target to build an object file
+main.c.o:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o
+.PHONY : main.c.o
+
+main.i: main.c.i
+
+.PHONY : main.i
+
+# target to preprocess a source file
+main.c.i:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/main.c.i
+.PHONY : main.c.i
+
+main.s: main.c.s
+
+.PHONY : main.s
+
+# target to generate assembly for a file
+main.c.s:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/main.c.s
+.PHONY : main.c.s
+
+parser.o: parser.c.o
+
+.PHONY : parser.o
+
+# target to build an object file
+parser.c.o:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o
+.PHONY : parser.c.o
+
+parser.i: parser.c.i
+
+.PHONY : parser.i
+
+# target to preprocess a source file
+parser.c.i:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.i
+.PHONY : parser.c.i
+
+parser.s: parser.c.s
+
+.PHONY : parser.s
+
+# target to generate assembly for a file
+parser.c.s:
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.s
+.PHONY : parser.c.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -162,6 +216,12 @@ help:
 	@echo "... lexer.o"
 	@echo "... lexer.i"
 	@echo "... lexer.s"
+	@echo "... main.o"
+	@echo "... main.i"
+	@echo "... main.s"
+	@echo "... parser.o"
+	@echo "... parser.i"
+	@echo "... parser.s"
 .PHONY : help
 
 

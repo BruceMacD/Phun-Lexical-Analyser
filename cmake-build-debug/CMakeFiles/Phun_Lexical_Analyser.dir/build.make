@@ -81,17 +81,69 @@ CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o.provides: CMakeFiles/Phun_Lexical
 CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o.provides.build: CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o
 
 
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o: CMakeFiles/Phun_Lexical_Analyser.dir/flags.make
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o: ../main.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/brucem/Development/Phun-Lexical-Analyser/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o"
+	/usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o   -c /home/brucem/Development/Phun-Lexical-Analyser/main.c
+
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/Phun_Lexical_Analyser.dir/main.c.i"
+	/usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/brucem/Development/Phun-Lexical-Analyser/main.c > CMakeFiles/Phun_Lexical_Analyser.dir/main.c.i
+
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/Phun_Lexical_Analyser.dir/main.c.s"
+	/usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/brucem/Development/Phun-Lexical-Analyser/main.c -o CMakeFiles/Phun_Lexical_Analyser.dir/main.c.s
+
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.requires:
+
+.PHONY : CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.requires
+
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.provides: CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.requires
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.provides.build
+.PHONY : CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.provides
+
+CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.provides.build: CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o
+
+
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o: CMakeFiles/Phun_Lexical_Analyser.dir/flags.make
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o: ../parser.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/brucem/Development/Phun-Lexical-Analyser/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building C object CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o"
+	/usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o   -c /home/brucem/Development/Phun-Lexical-Analyser/parser.c
+
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.i"
+	/usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/brucem/Development/Phun-Lexical-Analyser/parser.c > CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.i
+
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.s"
+	/usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/brucem/Development/Phun-Lexical-Analyser/parser.c -o CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.s
+
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.requires:
+
+.PHONY : CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.requires
+
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.provides: CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.requires
+	$(MAKE) -f CMakeFiles/Phun_Lexical_Analyser.dir/build.make CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.provides.build
+.PHONY : CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.provides
+
+CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.provides.build: CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o
+
+
 # Object files for target Phun_Lexical_Analyser
 Phun_Lexical_Analyser_OBJECTS = \
-"CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o"
+"CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o" \
+"CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o" \
+"CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o"
 
 # External object files for target Phun_Lexical_Analyser
 Phun_Lexical_Analyser_EXTERNAL_OBJECTS =
 
 Phun_Lexical_Analyser: CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o
+Phun_Lexical_Analyser: CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o
+Phun_Lexical_Analyser: CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o
 Phun_Lexical_Analyser: CMakeFiles/Phun_Lexical_Analyser.dir/build.make
 Phun_Lexical_Analyser: CMakeFiles/Phun_Lexical_Analyser.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/brucem/Development/Phun-Lexical-Analyser/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable Phun_Lexical_Analyser"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/brucem/Development/Phun-Lexical-Analyser/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking C executable Phun_Lexical_Analyser"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Phun_Lexical_Analyser.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -100,6 +152,8 @@ CMakeFiles/Phun_Lexical_Analyser.dir/build: Phun_Lexical_Analyser
 .PHONY : CMakeFiles/Phun_Lexical_Analyser.dir/build
 
 CMakeFiles/Phun_Lexical_Analyser.dir/requires: CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o.requires
+CMakeFiles/Phun_Lexical_Analyser.dir/requires: CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o.requires
+CMakeFiles/Phun_Lexical_Analyser.dir/requires: CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o.requires
 
 .PHONY : CMakeFiles/Phun_Lexical_Analyser.dir/requires
 

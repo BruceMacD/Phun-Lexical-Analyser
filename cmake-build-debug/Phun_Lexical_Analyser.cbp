@@ -87,6 +87,15 @@
 		<Unit filename="/home/brucem/Development/Phun-Lexical-Analyser/lexer.c">
 			<Option target="Phun_Lexical_Analyser"/>
 		</Unit>
+		<Unit filename="/home/brucem/Development/Phun-Lexical-Analyser/main.c">
+			<Option target="Phun_Lexical_Analyser"/>
+		</Unit>
+		<Unit filename="/home/brucem/Development/Phun-Lexical-Analyser/parser.c">
+			<Option target="Phun_Lexical_Analyser"/>
+		</Unit>
+		<Unit filename="/home/brucem/Development/Phun-Lexical-Analyser/phun.h">
+			<Option target="Phun_Lexical_Analyser"/>
+		</Unit>
 		<Unit filename="/home/brucem/Development/Phun-Lexical-Analyser/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>

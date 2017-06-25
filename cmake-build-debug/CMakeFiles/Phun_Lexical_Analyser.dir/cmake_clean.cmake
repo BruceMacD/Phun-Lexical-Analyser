@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o"
+  "CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o"
+  "CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o"
   "Phun_Lexical_Analyser.pdb"
   "Phun_Lexical_Analyser"
 )

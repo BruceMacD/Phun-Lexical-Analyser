@@ -1,1 +1,1 @@
-/usr/bin/cc  -g   CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o  -o Phun_Lexical_Analyser 
+/usr/bin/cc  -g   CMakeFiles/Phun_Lexical_Analyser.dir/lexer.c.o CMakeFiles/Phun_Lexical_Analyser.dir/main.c.o CMakeFiles/Phun_Lexical_Analyser.dir/parser.c.o  -o Phun_Lexical_Analyser 

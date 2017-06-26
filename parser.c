@@ -39,19 +39,25 @@ node *newLeaf (asttype type, int iValue, char* sValue) {
  */
 node *parseExpr (token t) {
     node *n1, *n2;
+    //TODO: Figure out how ( Exprs ) works here
+    //TODO: How to do list
     switch (t.type) {
-        case tBEGIN:
+        case tQUOTE:
             n1 = parseExpr(scan());
-#ifdef debug
-            printf("Parsed S := neg S\n");
-#endif
-            return (newNode(astBEGIN, n1, NULL));
+            return (newNode(astQUOTE, n1, NULL));
+
+        case tIDENT:
+            return (newLeaf(astIDENT, t.iVal, strdup(t.sVal)));
 
         case tINT:
-#ifdef debug
-            printf("Parsed S := %d (integer)\n", t.value);
-#endif
             return (newLeaf(astINT, t.iVal, strdup(t.sVal)));
+
+        case tSTRING:
+            return (newLeaf(astSTRING, t.iVal, strdup(t.sVal)));
+
+        case tBEGIN:
+            n1 = parseExpr(scan());
+            return (newNode(astBEGIN, n1, NULL));
 
         default:
             /* Oh noes, something went awry! */

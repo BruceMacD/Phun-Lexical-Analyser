@@ -33,10 +33,9 @@ node *newLeaf (asttype type, int iValue, char* sValue) {
 }
 
 /*
- * This is the rule for S:
- * - there is a case for every token in its predictor set
- * - the default action is for syntax errors
+ * build ast from nodes and leaves
  */
+/*
 node *parseExpr (token t) {
     node *n1, *n2;
     //TODO: How to do list
@@ -70,12 +69,43 @@ node *parseExpr (token t) {
         //case tEOF:
 
         default:
+            //something went wrong
+            fatalError ("Syntax Error");
+    }
+}*/
+
+void parseExpr (token t) {
+    switch (t.type) {
+        case tQUOTE:
+            printf("'\n");
+            parseExpr(scan());
+            break;
+        case tIDENT:
+            printf("Identifier: [%s]\n", t.sVal);
+            parseExpr(scan());
+            break;
+        case tINT:
+            printf("Integer: [%d]\n", t.iVal);
+            break;
+        case tSTRING:
+            printf("String: [%s]\n", t.sVal);
+            break;
+        case tBEGIN:
+            printf("(\n");
+            //add an indent
+            printf("\t");
+            parseExpr(scan());
+            break;
+        case tEND:
+            printf(")\n");
+            break;
+        default:
             /* Oh noes, something went awry! */
             fatalError ("Syntax Error");
     }
 }
 
-node* parse () {
+void parse () {
     return (parseExpr(scan()));
 }
 

@@ -8,8 +8,7 @@
 #include "phun.h"
 
 /*
- * An example of a simple s-grammar
- * - all nodes in the tree have a single synthesised rule to create/return an int
+ * parse an ast and print it
  */
 int evaluate (node *ast) {
     int result;

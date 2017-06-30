@@ -45,8 +45,10 @@ void returnChar (char c);
 void printToken (token t);
 token scan ();
 
-node *parse();
-node *parseExpr(token t);
+//node *parse();
+//node *parseExpr(token t);
+void parse();
+void parseExpr (token t);
 
 int evaluate(node *n);
 /* end of phun.h */

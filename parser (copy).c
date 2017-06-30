@@ -44,7 +44,7 @@ node *parseExpr (token t) {
     switch (t.type) {
         case tQUOTE:
             n1 = parseExpr(scan());
-            return (newNode(astQUOTE, NULL, n1));
+            return (newNode(astQUOTE, n1, NULL));
 
         case tIDENT:
             n1 = parseExpr(scan());

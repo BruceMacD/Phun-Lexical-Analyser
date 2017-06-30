@@ -13,22 +13,27 @@
  */
 int evaluate (node *ast) {
     int result;
+    //char * sResult;
     switch (ast->type) {
         case astBEGIN:
             //example:
             //result = evaluate(ast->operand1) + evaluate(ast->operand2);
+            //sresult = ast->sVal;
             break;
         case astEND:
+            //sresult = ast->sVal;
             break;
         case astIDENT:
+            //sresult = ast->sVal;
             break;
         case astSTRING:
+            //sresult = ast->sVal;
             break;
         case astQUOTE:
+            //sresult = ast->sVal;
             break;
         case astINT:
-            //example:
-            //result = ast->ival;
+            result = ast->iVal;
             break;
         default:
             fatalError("Unknown AST node");

@@ -6,6 +6,16 @@
 
 #IncludeRegexTransform: 
 
+/home/brucem/Development/Phun-Lexical-Analyser/eval.c
+stdio.h
+-
+stdlib.h
+-
+ctype.h
+-
+phun.h
+/home/brucem/Development/Phun-Lexical-Analyser/phun.h
+
 /home/brucem/Development/Phun-Lexical-Analyser/lexer.c
 stdio.h
 -
@@ -24,6 +34,18 @@ stdio.h
 stdlib.h
 -
 ctype.h
+-
+phun.h
+/home/brucem/Development/Phun-Lexical-Analyser/phun.h
+
+/home/brucem/Development/Phun-Lexical-Analyser/parser.c
+stdio.h
+-
+stdlib.h
+-
+ctype.h
+-
+string.h
 -
 phun.h
 /home/brucem/Development/Phun-Lexical-Analyser/phun.h

@@ -14,7 +14,7 @@
 #define BUFLEN 1024
 
 /*
- * Used for debugging only.
+ * Used for printing during lex if needed.
  */
 void printToken (token t) {
    printf("Token: ");

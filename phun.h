@@ -1,6 +1,8 @@
 /* 
  * Phun Interpreter
- * Tami Meredith, June 2017
+ * Rebecca Ansems, Brandon Bremner, Bruce MacDonald, June 2017
+ *
+ * Built on provided sample code from: http://www.tamimeredith.ca/downloads/csci3136/sexi.tar
  */
  
 /*
@@ -25,7 +27,7 @@ typedef struct {
 /*
  * Types for AST generation
  */
-typedef enum { astBEGIN, astEND, astIDENT, astSTRING, astQUOTE, astINT, astEOF} asttype;
+typedef enum { astBEGIN, astEND, astIDENT, astSTRING, astQUOTE, astINT, astEOF, astEXPRS} asttype;
 
 typedef struct astS {
     asttype     type;
@@ -45,11 +47,10 @@ void returnChar (char c);
 void printToken (token t);
 token scan ();
 
-//node *parse();
-//node *parseExpr(token t);
-void parse();
-void printIndent(int indent);
-void parseExpr (token t, int indent);
+node *parse();
+node *parseExpr(token t);
 
 void evaluate(node *n);
+void printIndent();
+void printLeaf (node *n);
 /* end of phun.h */

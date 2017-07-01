@@ -49,22 +49,15 @@ void returnChar (char c) {
 }
 
 /*
- * Temporary main. We'll replace this when we add the AST.
+ * Parse AST and traverse
  */
 int main (int argc, char** argv) {
 
     ifp = fopen (argv[1], "r");
     name = argv[1];
 
-    parse();
-
-    //while (1) {
-    //    t = scan();
-    //    printToken(t);
-    //    if (t.type == tEOF) break;
-    //}
     //create and parse AST
-    //evaluate(parse());
+    evaluate(parse());
 
     return (SUCCESS);
 }

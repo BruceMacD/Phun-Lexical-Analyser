@@ -35,99 +35,53 @@ node *newLeaf (asttype type, int iValue, char* sValue) {
 /*
  * build ast from nodes and leaves
  */
-/*
 node *parseExpr (token t) {
-    node *n1, *n2;
-    //TODO: How to do list
-    //TODO: When to use left vs right leaf
+    node *n1;
     switch (t.type) {
+
         case tQUOTE:
+            //parse to find child first
             n1 = parseExpr(scan());
-            return (newNode(astQUOTE, NULL, n1));
+            //create new node, add quote leaf, add child node
+            return (newNode(astEXPRS, newLeaf(astQUOTE, NULL, "Quote"), n1));
 
         case tIDENT:
             n1 = parseExpr(scan());
-            return (newNode(astIDENT, n1, NULL));
+            //create new node, add identifier leaf, add child node
+            return (newNode(astEXPRS, newLeaf(astIDENT, NULL, strdup(t.sVal)), n1));
 
         case tINT:
             n1 = parseExpr(scan());
-            return (newNode(astINT, n1, NULL));
+            //create new node, add integer leaf, add child node
+            return (newNode(astEXPRS, newLeaf(astINT, t.iVal, NULL), n1));
 
         case tSTRING:
             n1 = parseExpr(scan());
-            return (newNode(astSTRING, n1, NULL));
+            //create new node, add string leaf, add child node
+            return (newNode(astSTRING, newLeaf(astSTRING, NULL, strdup(t.sVal)), n1));
 
         case tBEGIN:
             n1 = parseExpr(scan());
-            return (newNode(astBEGIN, n1, NULL));
+            //create new node, add open bracket leaf, add child node
+            return (newNode(astEXPRS, newLeaf(astBEGIN, NULL, "("), n1));
 
         case tEND:
-            //end if statement, return and recurse
-            return (newLeaf(astEND, t.iVal, strdup(t.sVal)));
+            n1 = parseExpr(scan());
+            //create new node, add close bracket leaf, add child node
+            return (newNode(astEXPRS, newLeaf(astEND, NULL, ")"), n1));
 
-        //TODO: this may be needed to catch errors
-        //case tEOF:
+        case tEOF:
+            //end of file, stop recursion and add terminating node with terminating leaves
+            return (newNode(astEXPRS, newLeaf(astEOF, NULL, NULL), NULL));
 
         default:
             //something went wrong
             fatalError ("Syntax Error");
     }
-}*/
-
-//TODO: move to eval?
-void parseExpr (token t, int indent) {
-
-    switch (t.type) {
-        case tQUOTE:
-            printIndent(indent);
-            printf("'\n");
-            parseExpr(scan(), indent);
-            break;
-        case tIDENT:
-            printIndent(indent);
-            printf("Identifier: [%s]\n", t.sVal);
-            parseExpr(scan(), indent);
-            break;
-        case tINT:
-            printIndent(indent);
-            printf("Integer: [%d]\n", t.iVal);
-            parseExpr(scan(), indent);
-            break;
-        case tSTRING:
-            printIndent(indent);
-            printf("String: [%s]\n", t.sVal);
-            parseExpr(scan(), indent);
-            break;
-        case tBEGIN:
-            printIndent(indent);
-            printf("(\n");
-            parseExpr(scan(), indent + 1);
-            break;
-        case tEND:
-            indent = indent - 1;
-            printIndent(indent);
-            printf(")\n");
-            parseExpr(scan(), indent);
-            break;
-        case tEOF:
-            //do nothing, end of file
-            break;
-        default:
-            /* Oh noes, something went awry! */
-            fatalError ("Syntax Error");
-    }
 }
 
-void printIndent(int indent) {
-    //set the amount of indentation
-    int i;
-    for( i = 0; i < indent; i = i + 1 ){
-        printf("\t");
-    }
-}
-
-void parse () {
-    return (parseExpr(scan(), 0));
+node * parse () {
+    return (parseExpr(scan()));
 }
 
 /* end of parser.c */

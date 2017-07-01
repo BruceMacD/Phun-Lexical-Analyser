@@ -10,7 +10,7 @@
 /*
  * parse an ast and print it
  */
-int evaluate (node *ast) {
+void evaluate (node *ast) {
     int result;
     //char * sResult;
     switch (ast->type) {
@@ -42,7 +42,6 @@ int evaluate (node *ast) {
 #ifdef debug
     printf("Node evaluated to: %d\n", result);
 #endif
-    return (result);
 }
 
 /* end of eval.c */

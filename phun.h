@@ -48,7 +48,8 @@ token scan ();
 //node *parse();
 //node *parseExpr(token t);
 void parse();
-void parseExpr (token t);
+void printIndent(int indent);
+void parseExpr (token t, int indent);
 
-int evaluate(node *n);
+void evaluate(node *n);
 /* end of phun.h */

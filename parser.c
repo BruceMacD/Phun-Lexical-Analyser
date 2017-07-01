@@ -74,30 +74,43 @@ node *parseExpr (token t) {
     }
 }*/
 
-void parseExpr (token t) {
+//TODO: move to eval?
+void parseExpr (token t, int indent) {
+
     switch (t.type) {
         case tQUOTE:
+            printIndent(indent);
             printf("'\n");
-            parseExpr(scan());
+            parseExpr(scan(), indent);
             break;
         case tIDENT:
+            printIndent(indent);
             printf("Identifier: [%s]\n", t.sVal);
-            parseExpr(scan());
+            parseExpr(scan(), indent);
             break;
         case tINT:
+            printIndent(indent);
             printf("Integer: [%d]\n", t.iVal);
+            parseExpr(scan(), indent);
             break;
         case tSTRING:
+            printIndent(indent);
             printf("String: [%s]\n", t.sVal);
+            parseExpr(scan(), indent);
             break;
         case tBEGIN:
+            printIndent(indent);
             printf("(\n");
-            //add an indent
-            printf("\t");
-            parseExpr(scan());
+            parseExpr(scan(), indent + 1);
             break;
         case tEND:
+            indent = indent - 1;
+            printIndent(indent);
             printf(")\n");
+            parseExpr(scan(), indent);
+            break;
+        case tEOF:
+            //do nothing, end of file
             break;
         default:
             /* Oh noes, something went awry! */
@@ -105,8 +118,16 @@ void parseExpr (token t) {
     }
 }
 
+void printIndent(int indent) {
+    //set the amount of indentation
+    int i;
+    for( i = 0; i < indent; i = i + 1 ){
+        printf("\t");
+    }
+}
+
 void parse () {
-    return (parseExpr(scan()));
+    return (parseExpr(scan(), 0));
 }
 
 /* end of parser.c */

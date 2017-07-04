@@ -21,6 +21,14 @@ node *newNode (asttype type, node* lhs, node* rhs) {
     return (n);
 }
 
+node *newListNode (asttype type, node* lhs, node* rhs) {
+    node *n = malloc(sizeof (node));
+    n->type = type;
+    n->operand1 = lhs;
+    n->operand2 = rhs;
+    return (n);
+}
+
 /*
  * Create a new AST Leaf
  */
@@ -31,6 +39,9 @@ node *newLeaf (asttype type, int iValue, char* sValue) {
     n->sVal = sValue;
     return (n);
 }
+
+//track open vs close brackets to validate syntax
+int brackets = 0;
 
 /*
  * build ast from nodes and leaves
@@ -61,11 +72,19 @@ node *parseExpr (token t) {
             return (newNode(astSTRING, newLeaf(astSTRING, NULL, strdup(t.sVal)), n1));
 
         case tBEGIN:
+            brackets = brackets + 1;
             n1 = parseExpr(scan());
             //create new node, add open bracket leaf, add child node
             return (newNode(astEXPRS, newLeaf(astBEGIN, NULL, "("), n1));
 
         case tEND:
+            //check for close bracket before open bracket
+            if (brackets > 0)
+            {
+                brackets = brackets - 1;
+            } else {
+                fatalError ("Syntax Error - Closing bracket without matching opening");
+            }
             n1 = parseExpr(scan());
             //create new node, add close bracket leaf, add child node
             return (newNode(astEXPRS, newLeaf(astEND, NULL, ")"), n1));
@@ -81,7 +100,15 @@ node *parseExpr (token t) {
 }
 
 node * parse () {
-    return (parseExpr(scan()));
+    //create the ast
+    node * root = (parseExpr(scan()));
+    //check for valid brackets before returning
+    if (brackets == 0) {
+        return root;
+    } else {
+        //not valid bracket syntax
+        fatalError ("Syntax Error");
+    }
 }
 
 /* end of parser.c */

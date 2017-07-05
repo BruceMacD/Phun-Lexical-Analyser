@@ -54,9 +54,9 @@ node *parseExpr (token t) {
         case tQUOTE:
             //parse to find expr node first
             n1 = parseExpr(scan());
-            //create new node, add quote leaf, add expr node
-            //Expr -> ' Expr
-            node * nQuote = (newNode(astEXPR, newLeaf(astQUOTE, NULL, "Quote"), newNode(astEXPR, n1, NULL)));
+            //create new node, add quote leaf, add exprs node
+            //Expr -> ' Exprs
+            node * nQuote = (newNode(astEXPR, newLeaf(astQUOTE, NULL, "Quote"), newNode(astEXPRS, n1, NULL)));
             //return node Exprs -> Expr
             return newNode(astEXPRS, nQuote, n1);
 

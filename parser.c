@@ -1,7 +1,6 @@
 /*
  * Simple Expression Interpreter
- * -- Stage 3: AST creation and evaluation
- * Tami Meredith, June 2017
+ * AST creation and evaluation
  */
 
 #include <stdio.h>

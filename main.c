@@ -1,7 +1,6 @@
 /* 
- * Simple Expression Interpreter
- * -- MAINLINE & Utilities --
- * Tami Meredith, June 2017
+ * Phun Lexical Analyser
+ * Rebecca Ansems, Brandon Bremner, Bruce MacDonald, July 2017
  */
  
 #include <stdio.h>

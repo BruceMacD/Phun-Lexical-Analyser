@@ -51,12 +51,33 @@ node *parseExpr (token t) {
     switch (t.type) {
 
         case tQUOTE:
-            //parse to find expr node first
+            //parse to find expr node first from a token
+            t = scan();
+            node * nExpr;
+            //add leaf depending on next expr
+            switch (t.type) {
+                case tIDENT:
+                    nExpr = newNode(astEXPR, newLeaf(astIDENT, NULL, strdup(t.sVal)), NULL);
+                    break;
+
+                case tINT:
+                    nExpr = newNode(astEXPR, newLeaf(astINT, t.iVal, NULL), NULL);
+                    break;
+
+                case tSTRING:
+                    nExpr = newNode(astEXPR, newLeaf(astSTRING, NULL, strdup(t.sVal)), NULL);
+                    break;
+
+                default:
+                    //next token not expected
+                    fatalError ("Syntax Error");
+            }
+            //create new node, add quote leaf and expr
+            //Expr -> ' Expr
+            node * nQuote = (newNode(astEXPR, newLeaf(astQUOTE, NULL, "Quote"), nExpr));
+            //continue building the tree from the next token
             n1 = parseExpr(scan());
-            //create new node, add quote leaf, add exprs node
-            //Expr -> ' Exprs
-            node * nQuote = (newNode(astEXPR, newLeaf(astQUOTE, NULL, "Quote"), newNode(astEXPRS, n1, NULL)));
-            //return node Exprs -> Expr
+            //return node Exprs -> Expr Exprs
             return newNode(astEXPRS, nQuote, n1);
 
         case tIDENT:
@@ -74,14 +95,14 @@ node *parseExpr (token t) {
             //create new node, add integer leaf, add child node
             //Expr -> int
             node * nInt = newNode(astEXPR, newLeaf(astINT, t.iVal, NULL), NULL);
-            //Exprs -> Expr (to current node)
+            //Exprs -> Expr Exprs
             return newNode(astEXPRS, nInt, n1);
 
         case tSTRING:
             n1 = parseExpr(scan());
             //create new node, add string leaf, add child node
             node * nString = newNode(astEXPR, newLeaf(astSTRING, NULL, strdup(t.sVal)), NULL);
-            //Exprs -> Expr (to current node)
+            //Exprs -> Expr Exprs
             return newNode(astEXPRS, nString, n1);
 
         case tBEGIN:
@@ -93,7 +114,7 @@ node *parseExpr (token t) {
             node * nList = newListNode(astLIST, newLeaf(astBEGIN, NULL, "("), n1, newLeaf(astEND, NULL, ")"));
             //Expr -> List
             node * beginExprNode = newNode(astEXPR, newNode(astEXPR, nList, NULL), NULL);
-            //Exprs -> Expr
+            //Exprs -> Expr Exprs
             return newNode(astEXPRS, beginExprNode, newNode(astEXPRS, NULL, NULL));
 
         case tEND:

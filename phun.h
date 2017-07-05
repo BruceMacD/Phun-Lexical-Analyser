@@ -27,12 +27,13 @@ typedef struct {
 /*
  * Types for AST generation
  */
-typedef enum { astBEGIN, astEND, astIDENT, astSTRING, astQUOTE, astINT, astEOF, astEXPRS} asttype;
+typedef enum { astBEGIN, astEND, astIDENT, astSTRING, astQUOTE, astINT, astEOF, astEXPRS, astEXPR, astLIST } asttype;
 
 typedef struct astS {
     asttype     type;
     struct astS *operand1;
     struct astS *operand2;
+    struct astS *operand3;
     int         iVal;
     char       *sVal;
 } node;

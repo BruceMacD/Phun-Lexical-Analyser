@@ -26,6 +26,31 @@ void evaluate (node *ast) {
                 evaluate(ast->operand2);
             }
             break;
+
+        case astEXPR:
+            //node found, parse leaves if not empty
+            if(ast->operand1 != NULL) {
+                evaluate(ast->operand1);
+            }
+            if(ast->operand2 != NULL) {
+                evaluate(ast->operand2);
+            }
+            break;
+
+        case astLIST:
+            //node found, parse leaves if not empty
+            //list has 3 leaves ( Exprs )
+            if(ast->operand1 != NULL) {
+                evaluate(ast->operand1);
+            }
+            if(ast->operand2 != NULL) {
+                evaluate(ast->operand2);
+            }
+            if(ast->operand3 != NULL) {
+                evaluate(ast->operand3);
+            }
+            break;
+
         case astBEGIN:
             //open bracket
             printIndent();

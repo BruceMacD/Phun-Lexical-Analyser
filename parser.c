@@ -21,11 +21,12 @@ node *newNode (asttype type, node* lhs, node* rhs) {
     return (n);
 }
 
-node *newListNode (asttype type, node* lhs, node* rhs) {
+node *newListNode (asttype type, node* lhs, node * exprs, node* rhs) {
     node *n = malloc(sizeof (node));
     n->type = type;
     n->operand1 = lhs;
-    n->operand2 = rhs;
+    n->operand2 = exprs;
+    n->operand3 = rhs;
     return (n);
 }
 
@@ -51,31 +52,50 @@ node *parseExpr (token t) {
     switch (t.type) {
 
         case tQUOTE:
-            //parse to find child first
+            //parse to find expr node first
             n1 = parseExpr(scan());
-            //create new node, add quote leaf, add child node
-            return (newNode(astEXPRS, newLeaf(astQUOTE, NULL, "Quote"), n1));
+            //create new node, add quote leaf, add expr node
+            //Expr -> ' Expr
+            node * nQuote = (newNode(astEXPR, newLeaf(astQUOTE, NULL, "Quote"), newNode(astEXPR, n1, NULL)));
+            //return node Exprs -> Expr
+            return newNode(astEXPRS, nQuote, n1);
 
         case tIDENT:
+            //continue building the tree
             n1 = parseExpr(scan());
-            //create new node, add identifier leaf, add child node
-            return (newNode(astEXPRS, newLeaf(astIDENT, NULL, strdup(t.sVal)), n1));
+            //create identifier leaf
+            //Expr -> id
+            node * nIdent = newNode(astEXPR, newLeaf(astIDENT, NULL, strdup(t.sVal)), NULL);
+            //add identifier leaf, add child node to lower part of tree
+            //Exprs -> Expr Exprs
+            return newNode(astEXPRS, nIdent, n1);
 
         case tINT:
             n1 = parseExpr(scan());
             //create new node, add integer leaf, add child node
-            return (newNode(astEXPRS, newLeaf(astINT, t.iVal, NULL), n1));
+            //Expr -> int
+            node * nInt = newNode(astEXPR, newLeaf(astINT, t.iVal, NULL), NULL);
+            //Exprs -> Expr (to current node)
+            return newNode(astEXPRS, nInt, n1);
 
         case tSTRING:
             n1 = parseExpr(scan());
             //create new node, add string leaf, add child node
-            return (newNode(astSTRING, newLeaf(astSTRING, NULL, strdup(t.sVal)), n1));
+            node * nString = newNode(astEXPR, newLeaf(astSTRING, NULL, strdup(t.sVal)), NULL);
+            //Exprs -> Expr (to current node)
+            return newNode(astEXPRS, nString, n1);
 
         case tBEGIN:
+            //track bracket count to validate syntax
             brackets = brackets + 1;
+            //get the rest of the tree
             n1 = parseExpr(scan());
-            //create new node, add open bracket leaf, add child node
-            return (newNode(astEXPRS, newLeaf(astBEGIN, NULL, "("), n1));
+            // List -> ( Exprs )
+            node * nList = newListNode(astLIST, newLeaf(astBEGIN, NULL, "("), n1, newLeaf(astEND, NULL, ")"));
+            //Expr -> List
+            node * beginExprNode = newNode(astEXPR, newNode(astEXPR, nList, NULL), NULL);
+            //Exprs -> Expr
+            return newNode(astEXPRS, beginExprNode, newNode(astEXPRS, NULL, NULL));
 
         case tEND:
             //check for close bracket before open bracket
@@ -85,9 +105,8 @@ node *parseExpr (token t) {
             } else {
                 fatalError ("Syntax Error - Closing bracket without matching opening");
             }
-            n1 = parseExpr(scan());
-            //create new node, add close bracket leaf, add child node
-            return (newNode(astEXPRS, newLeaf(astEND, NULL, ")"), n1));
+            //add nothing, bracket should be accounted for already continue scan
+            return parseExpr(scan());
 
         case tEOF:
             //end of file, stop recursion and add terminating node with terminating leaves
@@ -100,7 +119,7 @@ node *parseExpr (token t) {
 }
 
 node * parse () {
-    //create the ast
+    //create the ast from the bottom up
     node * root = (parseExpr(scan()));
     //check for valid brackets before returning
     if (brackets == 0) {

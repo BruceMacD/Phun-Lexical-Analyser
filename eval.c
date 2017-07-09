@@ -7,13 +7,25 @@
 #include <ctype.h>
 #include "phun.h"
 
+operation *newOperation (operationType type, operation *prev, operation *next) {
+    operation *o = malloc(sizeof (operation));
+    o->type = type;
+    o->previousOperation = prev;
+    o->nestedOperation = next;
+    return (o);
+}
+
 //tracks amount of indentation between nodes
 int   indent = 0;
+//start with no set operation
+operation *o = NULL;
+int result = 0;
 
 /*
  * parse an ast and print it
+ * TODO: May need to change return type, see usage in main
  */
-void evaluate (node *ast) {
+int evaluate (node *ast) {
 
     switch (ast->type) {
 
@@ -44,6 +56,7 @@ void evaluate (node *ast) {
                 evaluate(ast->operand1);
             }
             if(ast->operand2 != NULL) {
+                // new operation
                 evaluate(ast->operand2);
             }
             if(ast->operand3 != NULL) {
@@ -66,23 +79,58 @@ void evaluate (node *ast) {
             break;
         case astIDENT:
             //identifier leaf
-            printIndent();
-            printLeaf(ast);
+            //check the operation
+            //find the arguments
+            //printIndent();
+            //set operation
+            //TODO: check more ops and consider moving to separate function
+            switch (*ast->sVal) {
+                case '+':
+                    //node *operand1 = evaluate(n->operand1);
+                    //set operation to addition
+                    if ( o != NULL) {
+                        //TODO: might be overwriting o incorrectly here
+                        operation *newO = newOperation(oADD, o, NULL);
+                        o->nestedOperation = newO;
+                        o = newO;
+                    } else {
+                        //operation has not been set yet
+                        o = newOperation(oADD, NULL, NULL);
+                    }
+                    break;
+                default:
+                    fatalError("Invalid identifier");
+                    break;
+            }
+            //printLeaf(ast);
             break;
         case astSTRING:
             //string leaf
+            //TODO: Check in symbol table
             printIndent();
             printLeaf(ast);
             break;
         case astQUOTE:
             //quote leaf
+            //TODO: Strip quote and print
             printIndent();
             printLeaf(ast);
             break;
         case astINT:
             //integer leaf
-            printIndent();
-            printLeaf(ast);
+            //printIndent();
+            //printLeaf(ast);
+            //perform operation
+            //TODO: maybe move to separate function
+            switch (o->type) {
+                case oADD:
+                    //add to return value
+                    result = result + ast->iVal;
+                    break;
+                default:
+                    fatalError("Invalid identifier");
+                    break;
+            }
             break;
         case astEOF:
             //end of file, do nothing
@@ -91,6 +139,7 @@ void evaluate (node *ast) {
             fatalError("Unknown AST node");
             break;
     }
+    return result;
 #ifdef debug
     printf("Node evaluated to: %d\n", result);
 #endif
@@ -118,5 +167,26 @@ void printLeaf (node *n) {
     }
     printf("\n");
 }
+/*
+void identifyOperation (node *n) {
+    //TODO: Finish different cases for different identifiers
+    switch (*n->sVal) {
+        case '+':
+            //node *operand1 = evaluate(n->operand1);
+            result = result +
+            break;
+        case '-':
+            break;
+        case '*':
+            break;
+        case '/':
+            break;
+        case 'car':
+            break;
+        default:
+            fatalError("Invalid identifier");
+            break;
+    }
+}*/
 
 /* end of eval.c */

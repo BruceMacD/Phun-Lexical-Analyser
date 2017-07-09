@@ -56,7 +56,7 @@ int main (int argc, char** argv) {
     name = argv[1];
 
     //create and parse AST
-    evaluate(parse());
+    printf("%d", evaluate(parse()));
 
     return (SUCCESS);
 }

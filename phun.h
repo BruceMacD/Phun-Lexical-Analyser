@@ -39,6 +39,35 @@ typedef struct astS {
 } node;
 
 /*
+ * Symbol table for storing identifier values
+ */
+typedef struct symbolTable
+{
+    char* name;
+    //TODO: Types other than ints?
+    int data;
+    // pointer to next value in the table
+    struct symbol* next;
+} symbolTable;
+
+/*
+ * States for operations
+ */
+//TODO: Expand operationTypes
+typedef enum { oADD, oSUB } operationType;
+
+/*
+ * For tracking current operation
+ */
+typedef struct operation
+{
+    operationType type;
+    // pointer to next value in the table
+    struct operation* nestedOperation;
+    struct operation* previousOperation;
+} operation;
+
+/*
  * Function Declarations
  */
 void fatalError (char *msg);
@@ -51,7 +80,8 @@ token scan ();
 node *parse();
 node *parseExpr(token t);
 
-void evaluate(node *n);
+int evaluate(node *n);
 void printIndent();
 void printLeaf (node *n);
+void identifyOperation (node *n);
 /* end of phun.h */

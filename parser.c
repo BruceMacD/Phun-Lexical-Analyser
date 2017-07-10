@@ -20,15 +20,6 @@ node *newNode (asttype type, node* lhs, node* rhs) {
     return (n);
 }
 
-node *newListNode (asttype type, node* lhs, node * exprs, node* rhs) {
-    node *n = malloc(sizeof (node));
-    n->type = type;
-    n->operand1 = lhs;
-    n->operand2 = exprs;
-    n->operand3 = rhs;
-    return (n);
-}
-
 /*
  * Create a new AST Leaf
  */
@@ -111,7 +102,7 @@ node *parseExpr (token t) {
             //get the rest of the tree
             n1 = parseExpr(scan());
             // List -> ( Exprs )
-            node * nList = newListNode(astLIST, newLeaf(astBEGIN, NULL, "("), n1, newLeaf(astEND, NULL, ")"));
+            node * nList = newNode(astLIST, newLeaf(astBEGIN, NULL, "("), n1);
             //Expr -> List
             node * beginExprNode = newNode(astEXPR, newNode(astEXPR, nList, NULL), NULL);
             //Exprs -> Expr Exprs
@@ -125,8 +116,11 @@ node *parseExpr (token t) {
             } else {
                 fatalError ("Syntax Error - Closing bracket without matching opening");
             }
-            //add nothing, bracket should be accounted for already continue scan
-            return parseExpr(scan());
+            n1 = parseExpr(scan());
+            //create new node, add string leaf, add child node
+            node * nEND = newNode(astEXPR, newLeaf(astEND, NULL, ")"), NULL);
+            //Exprs -> Expr Exprs
+            return newNode(astEXPRS, nEND, n1);
 
         case tEOF:
             //end of file, stop recursion and add terminating node with terminating leaves

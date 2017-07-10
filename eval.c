@@ -7,19 +7,20 @@
 #include <ctype.h>
 #include "phun.h"
 
-operation *newOperation (operationType type, operation *prev, operation *next) {
+operation *newOperation (operationType type, operation *next, int result) {
     operation *o = malloc(sizeof (operation));
     o->type = type;
-    o->previousOperation = prev;
-    o->nestedOperation = next;
+    o->nextOperation = next;
+    o->result = result;
     return (o);
 }
 
 //tracks amount of indentation between nodes
 int   indent = 0;
 //start with no set operation
+operation *oHead = NULL;
 operation *o = NULL;
-int result = 0;
+int opResult;
 
 /*
  * parse an ast and print it
@@ -59,43 +60,87 @@ int evaluate (node *ast) {
                 // new operation
                 evaluate(ast->operand2);
             }
-            if(ast->operand3 != NULL) {
-                evaluate(ast->operand3);
-            }
             break;
 
         case astBEGIN:
-            //open bracket
-            printIndent();
-            //increase indent for following
+            //for evaluation
             indent = indent + 1;
-            printLeaf(ast);
             break;
+
         case astEND:
-            //close bracket, decrease indent for following
+            //done performing current operation
+            //transfer the result to the parent operation
             indent = indent - 1;
-            printIndent();
-            printLeaf(ast);
+            opResult = o->result;
+            removeLastOperation();
+            //TODO: needs cases
+            //check if last operation
+            if (indent != 0) {
+                switch (o->type) {
+                    case oADD:
+                        o->result = o->result + opResult;
+                        break;
+                    case oSUB:
+                        o->result = o->result - opResult;
+                        break;
+                    case oMULT:
+                        o->result = o->result * opResult;
+                        break;
+                    case oDIV:
+                        o->result = o->result / opResult;
+                        break;
+                    default:
+                        fatalError("Invalid identifier");
+                        break;
+                }
+            }
             break;
         case astIDENT:
-            //identifier leaf
-            //check the operation
-            //find the arguments
-            //printIndent();
-            //set operation
             //TODO: check more ops and consider moving to separate function
             switch (*ast->sVal) {
                 case '+':
                     //node *operand1 = evaluate(n->operand1);
                     //set operation to addition
-                    if ( o != NULL) {
-                        //TODO: might be overwriting o incorrectly here
-                        operation *newO = newOperation(oADD, o, NULL);
-                        o->nestedOperation = newO;
-                        o = newO;
+                    if ( oHead != NULL) {
+                        //set operation
+                        findCurrentOperation();
+                        o->nextOperation = newOperation(oADD, NULL, NULL);
                     } else {
                         //operation has not been set yet
-                        o = newOperation(oADD, NULL, NULL);
+                        oHead = newOperation(oADD, NULL, NULL);
+                    }
+                    break;
+                case '-':
+                    //set operation to subtraction
+                    if ( oHead != NULL) {
+                        //set operation
+                        findCurrentOperation();
+                        o->nextOperation = newOperation(oSUB, NULL, NULL);
+                    } else {
+                        //operation has not been set yet
+                        oHead = newOperation(oSUB, NULL, NULL);
+                    }
+                    break;
+                case '*':
+                    //set operation to multiplication
+                    if ( oHead != NULL) {
+                        //set operation
+                        findCurrentOperation();
+                        o->nextOperation = newOperation(oMULT, NULL, NULL);
+                    } else {
+                        //operation has not been set yet
+                        oHead = newOperation(oMULT, NULL, NULL);
+                    }
+                    break;
+                case '/':
+                    //set operation to division
+                    if ( oHead != NULL) {
+                        //set operation
+                        findCurrentOperation();
+                        o->nextOperation = newOperation(oDIV, NULL, NULL);
+                    } else {
+                        //operation has not been set yet
+                        oHead = newOperation(oDIV, NULL, NULL);
                     }
                     break;
                 default:
@@ -118,14 +163,59 @@ int evaluate (node *ast) {
             break;
         case astINT:
             //integer leaf
-            //printIndent();
-            //printLeaf(ast);
+            findCurrentOperation();
             //perform operation
             //TODO: maybe move to separate function
+            //TODO: remove printf, it is for debug
             switch (o->type) {
                 case oADD:
-                    //add to return value
-                    result = result + ast->iVal;
+                    //check if not first operation
+                    if (o->result != NULL) {
+                        //add to return value
+                        printf("Current: %d + %d\n", o->result, ast->iVal);
+                        o->result = o->result + ast->iVal;
+                        printf("Result: %d\n", o->result);
+                    } else {
+                        //set value to operate on
+                        printf("Setting base value: %d\n", ast->iVal);
+                        o->result = ast->iVal;
+                    }
+                    break;
+                case oSUB:
+                    //check if not first operation
+                    if (o->result != NULL) {
+                        //subtract from return value
+                        printf("Current: %d - %d\n", o->result, ast->iVal);
+                        o->result = o->result - ast->iVal;
+                        printf("Result: %d\n", o->result);
+                    } else {
+                        //set value to operate on
+                        o->result = ast->iVal;
+                    }
+                    break;
+                case oMULT:
+                    //check if not first operation
+                    if (o->result != NULL) {
+                        //multiply return value
+                        printf("Current: %d - %d\n", o->result, ast->iVal);
+                        o->result = o->result * ast->iVal;
+                        printf("Result: %d\n", o->result);
+                    } else {
+                        //set value to operate on
+                        o->result = ast->iVal;
+                    }
+                    break;
+                case oDIV:
+                    //check if not first operation
+                    if (o->result != NULL) {
+                        //divide return value
+                        printf("Current: %d - %d\n", o->result, ast->iVal);
+                        o->result = o->result / ast->iVal;
+                        printf("Result: %d\n", o->result);
+                    } else {
+                        //set value to operate on
+                        o->result = ast->iVal;
+                    }
                     break;
                 default:
                     fatalError("Invalid identifier");
@@ -139,10 +229,33 @@ int evaluate (node *ast) {
             fatalError("Unknown AST node");
             break;
     }
-    return result;
+    if (o != NULL) {
+        return o->result;
+    }
 #ifdef debug
     printf("Node evaluated to: %d\n", result);
 #endif
+}
+
+void findCurrentOperation() {
+    //iterate to end of list to find current operation
+    //TODO: This could be more efficient if we stored the list in reverse. Could just return head
+    o = oHead;
+    while (o->nextOperation != NULL) {
+        o = o->nextOperation;
+    }
+}
+
+void removeLastOperation() {
+    //iterate to second last in list
+    o = oHead;
+    if (o->nextOperation != NULL) {
+        while (o->nextOperation->nextOperation != NULL) {
+            o = o->nextOperation;
+        }
+        //remove from list
+        o->nextOperation = NULL;
+    }
 }
 
 void printIndent() {
@@ -167,26 +280,5 @@ void printLeaf (node *n) {
     }
     printf("\n");
 }
-/*
-void identifyOperation (node *n) {
-    //TODO: Finish different cases for different identifiers
-    switch (*n->sVal) {
-        case '+':
-            //node *operand1 = evaluate(n->operand1);
-            result = result +
-            break;
-        case '-':
-            break;
-        case '*':
-            break;
-        case '/':
-            break;
-        case 'car':
-            break;
-        default:
-            fatalError("Invalid identifier");
-            break;
-    }
-}*/
 
 /* end of eval.c */

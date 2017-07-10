@@ -33,7 +33,6 @@ typedef struct astS {
     asttype     type;
     struct astS *operand1;
     struct astS *operand2;
-    struct astS *operand3;
     int         iVal;
     char       *sVal;
 } node;
@@ -54,7 +53,7 @@ typedef struct symbolTable
  * States for operations
  */
 //TODO: Expand operationTypes
-typedef enum { oADD, oSUB } operationType;
+typedef enum { oADD, oSUB , oMULT, oDIV } operationType;
 
 /*
  * For tracking current operation
@@ -62,9 +61,10 @@ typedef enum { oADD, oSUB } operationType;
 typedef struct operation
 {
     operationType type;
-    // pointer to next value in the table
-    struct operation* nestedOperation;
-    struct operation* previousOperation;
+    // pointer to previous operation
+    struct operation* nextOperation;
+    // store running result
+    int result;
 } operation;
 
 /*
@@ -81,6 +81,8 @@ node *parse();
 node *parseExpr(token t);
 
 int evaluate(node *n);
+void findCurrentOperation();
+void removeLastOperation();
 void printIndent();
 void printLeaf (node *n);
 void identifyOperation (node *n);

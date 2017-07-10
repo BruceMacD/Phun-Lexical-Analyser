@@ -77,7 +77,7 @@ int main (int argc, char** argv) {
 #else /* Evaluate */
     e = parse();
     //evaluate tree
-    evalList(e, 0);
+    printf("%d", evalList(e, 0));
     /* Evaluate e here */
 #endif
     return (SUCCESS);

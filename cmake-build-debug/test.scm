@@ -1,1 +1,1 @@
-(define sum (lambda 'Hello (x y) (+ x y)))
+(+ 2 (* 5 3) 3)

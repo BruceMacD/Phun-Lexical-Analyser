@@ -9,6 +9,8 @@
 #define SUCCESS  0
 #define FAILURE -1
 #define DEBUG    1  /* Set to 0 to turn off debugging messages */
+//arbitrary maximum size
+#define MAXSIZE 1024
 
 /*
  * Types for lexical analysis
@@ -40,6 +42,36 @@ typedef struct exprList {
 } exprs;
 
 /*
+ * Symbol table for storing identifier values
+ */
+typedef struct symbol
+{
+    char* identifier;
+    //TODO: Types other than ints?
+    int data;
+    // pointer to next value in the table
+    struct identifier* next;
+} symbol;
+
+/*
+ * States for operations
+ */
+//TODO: Expand operationTypes
+typedef enum { oADD, oSUB , oMULT, oDIV, oCAR, oCDR, oLIST, oCONS, oDEFINE } identifierType;
+
+/*
+ * For tracking current operation
+ */
+typedef struct operation
+{
+    identifierType type;
+    // pointer to next operation
+    struct operation* nextOperation;
+    // store running result
+    int result;
+} operation;
+
+/*
  * Function Declarations
  */
 void fatalError (char *msg);
@@ -53,6 +85,10 @@ exprs *parse();
 exprs *parseFileList (token t);
 exprs *parseExprList (token t);
 expr  *parseExpr (token t);
-void evalList(exprs *l, int n);
+int evalList(exprs *l, int n);
+void symbolTable(char* sVal);
+void pop();
+void push(operation *op);
+void performOperation(int value);
 
 /* end of phun.h */

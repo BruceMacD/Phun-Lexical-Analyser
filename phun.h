@@ -1,10 +1,8 @@
 /* 
  * Phun Interpreter
- * Rebecca Ansems, Brandon Bremner, Bruce MacDonald, June 2017
- *
- * Built on provided sample code from: http://www.tamimeredith.ca/downloads/csci3136/sexi.tar
+ * Tami Meredith, June 2017
  */
- 
+
 /*
  * Constants
  */
@@ -21,22 +19,25 @@ typedef enum { tBEGIN, tEND, tQUOTE, tINT, tIDENT, tSTRING, tEOF } tokentype;
 typedef struct {
     tokentype type;
     int       iVal;
-    char     *sVal;    
+    char     *sVal;
 } token;
 
 /*
- * Types for AST generation
+ * Types for parsing and AST construction
  */
-typedef enum { astBEGIN, astEND, astIDENT, astSTRING, astQUOTE, astINT, astEOF, astEXPRS, astEXPR, astLIST } asttype;
+typedef enum { eString, eIdent, eInt, eExprList } exprtype;
 
-typedef struct astS {
-    asttype     type;
-    struct astS *operand1;
-    struct astS *operand2;
-    struct astS *operand3;
-    int         iVal;
-    char       *sVal;
-} node;
+typedef struct expression {
+    exprtype type;
+    char    *sVal;
+    int      iVal;
+    struct exprList *eVal;
+} expr;
+
+typedef struct exprList {
+    expr *e;
+    struct exprList *n;
+} exprs;
 
 /*
  * Function Declarations
@@ -48,10 +49,10 @@ void returnChar (char c);
 void printToken (token t);
 token scan ();
 
-node *parse();
-node *parseExpr(token t);
+exprs *parse();
+exprs *parseFileList (token t);
+exprs *parseExprList (token t);
+expr  *parseExpr (token t);
+void evalList(exprs *l, int n);
 
-void evaluate(node *n);
-void printIndent();
-void printLeaf (node *n);
 /* end of phun.h */

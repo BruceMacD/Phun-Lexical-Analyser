@@ -7,116 +7,44 @@
 #include <ctype.h>
 #include "phun.h"
 
-//tracks amount of indentation between nodes
-int   indent = 0;
 
 /*
- * parse an ast and print it
+ * AST Dump for debugging and testing
  */
-void evaluate (node *ast) {
 
-    switch (ast->type) {
+void indent(int n) {
+    int i;
+    for (i = 0; i < n; i++)
+        printf("  ");
+}
 
-        case astEXPRS:
-            //node found, parse leaves if not empty
-            if(ast->operand1 != NULL) {
-                evaluate(ast->operand1);
-            }
-            if(ast->operand2 != NULL) {
-                evaluate(ast->operand2);
-            }
+void printExpr(expr *e, int n) {
+    indent(n);
+    switch (e->type) {
+        case eString:
+            printf("String: [%s]\n", e->sVal);
             break;
-
-        case astEXPR:
-            //node found, parse leaves if not empty
-            if(ast->operand1 != NULL) {
-                evaluate(ast->operand1);
-            }
-            if(ast->operand2 != NULL) {
-                evaluate(ast->operand2);
-            }
+        case eIdent:
+            printf("Identifier: [%s]\n", e->sVal);
             break;
-
-        case astLIST:
-            //node found, parse leaves if not empty
-            //list has 3 leaves ( Exprs )
-            if(ast->operand1 != NULL) {
-                evaluate(ast->operand1);
-            }
-            if(ast->operand2 != NULL) {
-                evaluate(ast->operand2);
-            }
-            if(ast->operand3 != NULL) {
-                evaluate(ast->operand3);
-            }
+        case eInt:
+            printf("Integer: [%d]\n", e->iVal);
             break;
-
-        case astBEGIN:
-            //open bracket
-            printIndent();
-            //increase indent for following
-            indent = indent + 1;
-            printLeaf(ast);
-            break;
-        case astEND:
-            //close bracket, decrease indent for following
-            indent = indent - 1;
-            printIndent();
-            printLeaf(ast);
-            break;
-        case astIDENT:
-            //identifier leaf
-            printIndent();
-            printLeaf(ast);
-            break;
-        case astSTRING:
-            //string leaf
-            printIndent();
-            printLeaf(ast);
-            break;
-        case astQUOTE:
-            //quote leaf
-            printIndent();
-            printLeaf(ast);
-            break;
-        case astINT:
-            //integer leaf
-            printIndent();
-            printLeaf(ast);
-            break;
-        case astEOF:
-            //end of file, do nothing
+        case eExprList:
+            printf("(\n");
+            evalList(e->eVal, n+1);
+            indent(n);
+            printf(")\n");
             break;
         default:
-            fatalError("Unknown AST node");
             break;
     }
-#ifdef debug
-    printf("Node evaluated to: %d\n", result);
-#endif
 }
 
-void printIndent() {
-    //set the amount of indentation
-    int i;
-    for( i = 0; i < indent; i = i + 1 ){
-        printf("\t");
-    }
-}
-
-//print leaf in desired format
-void printLeaf (node *n) {
-    switch (n->type) {
-        case astBEGIN: printf(n->sVal); break;
-        case astEND: printf(n->sVal); break;
-        case astIDENT: printf("Identifier: [%s]", n->sVal); break;
-        case astSTRING: printf("String: [%s]", n->sVal); break;
-        case astQUOTE: printf("Quote"); break;
-        case astINT: printf("Integer: [%d]", n->iVal); break;
-        case astEOF: printf("End of File"); break;
-        default: break;
-    }
-    printf("\n");
+void evalList(exprs *l, int n) {
+    if (l == NULL) return;
+    printExpr(l->e, n);
+    evalList(l->n, n);
 }
 
 /* end of eval.c */

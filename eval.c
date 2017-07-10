@@ -73,7 +73,7 @@ int evaluate (node *ast) {
             indent = indent - 1;
             opResult = o->result;
             removeLastOperation();
-            //TODO: needs cases
+            //TODO: needs rest of cases
             //check if last operation
             if (indent != 0) {
                 switch (o->type) {
@@ -97,57 +97,7 @@ int evaluate (node *ast) {
             break;
         case astIDENT:
             //TODO: check more ops and consider moving to separate function
-            switch (*ast->sVal) {
-                case '+':
-                    //node *operand1 = evaluate(n->operand1);
-                    //set operation to addition
-                    if ( oHead != NULL) {
-                        //set operation
-                        findCurrentOperation();
-                        o->nextOperation = newOperation(oADD, NULL, NULL);
-                    } else {
-                        //operation has not been set yet
-                        oHead = newOperation(oADD, NULL, NULL);
-                    }
-                    break;
-                case '-':
-                    //set operation to subtraction
-                    if ( oHead != NULL) {
-                        //set operation
-                        findCurrentOperation();
-                        o->nextOperation = newOperation(oSUB, NULL, NULL);
-                    } else {
-                        //operation has not been set yet
-                        oHead = newOperation(oSUB, NULL, NULL);
-                    }
-                    break;
-                case '*':
-                    //set operation to multiplication
-                    if ( oHead != NULL) {
-                        //set operation
-                        findCurrentOperation();
-                        o->nextOperation = newOperation(oMULT, NULL, NULL);
-                    } else {
-                        //operation has not been set yet
-                        oHead = newOperation(oMULT, NULL, NULL);
-                    }
-                    break;
-                case '/':
-                    //set operation to division
-                    if ( oHead != NULL) {
-                        //set operation
-                        findCurrentOperation();
-                        o->nextOperation = newOperation(oDIV, NULL, NULL);
-                    } else {
-                        //operation has not been set yet
-                        oHead = newOperation(oDIV, NULL, NULL);
-                    }
-                    break;
-                default:
-                    fatalError("Invalid identifier");
-                    break;
-            }
-            //printLeaf(ast);
+            setOperation(ast);
             break;
         case astSTRING:
             //string leaf
@@ -164,63 +114,7 @@ int evaluate (node *ast) {
         case astINT:
             //integer leaf
             findCurrentOperation();
-            //perform operation
-            //TODO: maybe move to separate function
-            //TODO: remove printf, it is for debug
-            switch (o->type) {
-                case oADD:
-                    //check if not first operation
-                    if (o->result != NULL) {
-                        //add to return value
-                        printf("Current: %d + %d\n", o->result, ast->iVal);
-                        o->result = o->result + ast->iVal;
-                        printf("Result: %d\n", o->result);
-                    } else {
-                        //set value to operate on
-                        printf("Setting base value: %d\n", ast->iVal);
-                        o->result = ast->iVal;
-                    }
-                    break;
-                case oSUB:
-                    //check if not first operation
-                    if (o->result != NULL) {
-                        //subtract from return value
-                        printf("Current: %d - %d\n", o->result, ast->iVal);
-                        o->result = o->result - ast->iVal;
-                        printf("Result: %d\n", o->result);
-                    } else {
-                        //set value to operate on
-                        o->result = ast->iVal;
-                    }
-                    break;
-                case oMULT:
-                    //check if not first operation
-                    if (o->result != NULL) {
-                        //multiply return value
-                        printf("Current: %d - %d\n", o->result, ast->iVal);
-                        o->result = o->result * ast->iVal;
-                        printf("Result: %d\n", o->result);
-                    } else {
-                        //set value to operate on
-                        o->result = ast->iVal;
-                    }
-                    break;
-                case oDIV:
-                    //check if not first operation
-                    if (o->result != NULL) {
-                        //divide return value
-                        printf("Current: %d - %d\n", o->result, ast->iVal);
-                        o->result = o->result / ast->iVal;
-                        printf("Result: %d\n", o->result);
-                    } else {
-                        //set value to operate on
-                        o->result = ast->iVal;
-                    }
-                    break;
-                default:
-                    fatalError("Invalid identifier");
-                    break;
-            }
+            performOperation(ast);
             break;
         case astEOF:
             //end of file, do nothing
@@ -232,9 +126,6 @@ int evaluate (node *ast) {
     if (o != NULL) {
         return o->result;
     }
-#ifdef debug
-    printf("Node evaluated to: %d\n", result);
-#endif
 }
 
 void findCurrentOperation() {
@@ -255,6 +146,117 @@ void removeLastOperation() {
         }
         //remove from list
         o->nextOperation = NULL;
+    }
+}
+
+void setOperation(node *ast) {
+    switch (*ast->sVal) {
+        case '+':
+            //node *operand1 = evaluate(n->operand1);
+            //set operation to addition
+            if ( oHead != NULL) {
+                //set operation
+                findCurrentOperation();
+                o->nextOperation = newOperation(oADD, NULL, NULL);
+            } else {
+                //operation has not been set yet
+                oHead = newOperation(oADD, NULL, NULL);
+            }
+            break;
+        case '-':
+            //set operation to subtraction
+            if ( oHead != NULL) {
+                //set operation
+                findCurrentOperation();
+                o->nextOperation = newOperation(oSUB, NULL, NULL);
+            } else {
+                //operation has not been set yet
+                oHead = newOperation(oSUB, NULL, NULL);
+            }
+            break;
+        case '*':
+            //set operation to multiplication
+            if ( oHead != NULL) {
+                //set operation
+                findCurrentOperation();
+                o->nextOperation = newOperation(oMULT, NULL, NULL);
+            } else {
+                //operation has not been set yet
+                oHead = newOperation(oMULT, NULL, NULL);
+            }
+            break;
+        case '/':
+            //set operation to division
+            if ( oHead != NULL) {
+                //set operation
+                findCurrentOperation();
+                o->nextOperation = newOperation(oDIV, NULL, NULL);
+            } else {
+                //operation has not been set yet
+                oHead = newOperation(oDIV, NULL, NULL);
+            }
+            break;
+        default:
+            fatalError("Invalid identifier");
+            break;
+    }
+}
+
+void performOperation(node *ast) {
+    //TODO: remove printf, it is for debug
+    switch (o->type) {
+        case oADD:
+            //check if not first operation
+            if (o->result != NULL) {
+                //add to return value
+                printf("Current: %d + %d\n", o->result, ast->iVal);
+                o->result = o->result + ast->iVal;
+                printf("Result: %d\n", o->result);
+            } else {
+                //set value to operate on
+                printf("Setting base value: %d\n", ast->iVal);
+                o->result = ast->iVal;
+            }
+            break;
+        case oSUB:
+            //check if not first operation
+            if (o->result != NULL) {
+                //subtract from return value
+                printf("Current: %d - %d\n", o->result, ast->iVal);
+                o->result = o->result - ast->iVal;
+                printf("Result: %d\n", o->result);
+            } else {
+                //set value to operate on
+                o->result = ast->iVal;
+            }
+            break;
+        case oMULT:
+            //check if not first operation
+            if (o->result != NULL) {
+                //multiply return value
+                printf("Current: %d - %d\n", o->result, ast->iVal);
+                o->result = o->result * ast->iVal;
+                printf("Result: %d\n", o->result);
+            } else {
+                //set value to operate on
+                o->result = ast->iVal;
+            }
+            break;
+        case oDIV:
+            //check if not first operation
+            if (o->result != NULL) {
+                //divide return value
+                printf("Current: %d - %d\n", o->result, ast->iVal);
+                o->result = o->result / ast->iVal;
+                printf("Result: %d\n", o->result);
+            } else {
+                //set value to operate on
+                o->result = ast->iVal;
+            }
+            break;
+        default:
+            fatalError("Invalid identifier");
+            break;
     }
 }
 

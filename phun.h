@@ -83,6 +83,8 @@ node *parseExpr(token t);
 int evaluate(node *n);
 void findCurrentOperation();
 void removeLastOperation();
+void setOperation(node *ast);
+void performOperation(node *ast);
 void printIndent();
 void printLeaf (node *n);
 void identifyOperation (node *n);

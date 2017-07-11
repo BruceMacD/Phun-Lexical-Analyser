@@ -91,6 +91,10 @@ void symbolTable(char *sVal) {
         if (iHEAD == NULL) {
             //set the head
             iHEAD = newIdentifier(NULL, NULL, NULL);
+        } else {
+            //set the next identifier
+            setCurrentIdentifier();
+            iCURR->next = newIdentifier(NULL, NULL, NULL);
         }
     }
     else if (strcmp(sVal, "quote") == 0) {

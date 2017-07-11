@@ -42,16 +42,16 @@ typedef struct exprList {
 } exprs;
 
 /*
- * Symbol table for storing identifier values
+ * Symbol for storing defined identifier values
  */
-typedef struct symbol
+typedef struct identifier
 {
-    char* identifier;
-    //TODO: Types other than ints?
+    // name for def identifier
+    char* name;
     int data;
     // pointer to next value in the table
     struct identifier* next;
-} symbol;
+} identifier;
 
 /*
  * States for operations
@@ -66,6 +66,7 @@ typedef struct atom
 {
     identifierType type;
     // pointer to next operation
+    //TODO: needed?
     struct atom* nextAtom;
     // store running result
     struct expression* result;
@@ -94,5 +95,6 @@ void symbolTable(char* sVal);
 void pop();
 void push(atom *at);
 void performOperation(int value);
+void setCurrentIdentifier();
 
 /* end of phun.h */

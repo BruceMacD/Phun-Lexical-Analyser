@@ -10,6 +10,12 @@
 
 atom* stack[MAXSIZE];
 int pos = -1;
+//store first defined identifier in linked list
+identifier* iHEAD = NULL;
+//for navigating list of defined identifiers
+identifier* iCURR;
+//for returning result
+atom* result = NULL;
 
 atom *newAtom (identifierType type, atom *next, struct expression* result) {
     atom *a = malloc(sizeof (atom));
@@ -19,9 +25,15 @@ atom *newAtom (identifierType type, atom *next, struct expression* result) {
     return (a);
 }
 
-
+identifier *newIdentifier(char* name, int data, identifier *next) {
+    identifier *i = malloc(sizeof (i));
+    i->name = name;
+    i->data = data;
+    i->next = next;
+    return (i);
+}
 /*
- * Atom expression Functions
+ * expression Functions
  */
 
 expr *newListResult(exprs *l) {
@@ -66,46 +78,79 @@ void evalExpr(expr *e, int n) {
 
 void symbolTable(char *sVal) {
 
+    //in definition state, add to global symbol table
     //check for definition
-    if (strcmp(sVal, "define") == 0) {
-        //add defined value to symbol table
-        printf("define");
+    if (pos != -1 && stack[pos]->type == oDEFINE) {
+        //get current
+        setCurrentIdentifier();
+        iCURR->name = sVal;
     }
-
-    //TODO: car, cat, etc
-
-    switch (*sVal) {
-        case '"':
-            //strip quote and return atom
-        case '+':
-            //push operation to stack
-            push(newAtom(oADD, NULL, NULL));
-            break;
-        case '-':
-            //set operation to subtraction
-            //push operation to stack
-            push(newAtom(oSUB, NULL, NULL));
-            break;
-        case '*':
-            //push operation to stack
-            push(newAtom(oMULT, NULL, NULL));
-            break;
-        case '/':
-            //push operation to stack
-            push(newAtom(oDIV, NULL, NULL));
-            break;
-        default:
-            //check defined identifiers
-            break;
+    else if (strcmp(sVal, "define") == 0) {
+        //add defined value to symbol table
+        push(newAtom(oDEFINE, NULL, NULL));
+        if (iHEAD == NULL) {
+            //set the head
+            iHEAD = newIdentifier(NULL, NULL, NULL);
+        }
+    }
+    else if (strcmp(sVal, "quote") == 0) {
+        //strip quote and return atom
+        printf("quote");
+        fflush(stdout);
+    }
+    else {
+        //TODO: car, cat, etc
+        switch (*sVal) {
+            case '+':
+                //push operation to stack
+                push(newAtom(oADD, NULL, NULL));
+                break;
+            case '-':
+                //set operation to subtraction
+                //push operation to stack
+                push(newAtom(oSUB, NULL, NULL));
+                break;
+            case '*':
+                //push operation to stack
+                push(newAtom(oMULT, NULL, NULL));
+                break;
+            case '/':
+                //push operation to stack
+                push(newAtom(oDIV, NULL, NULL));
+                break;
+            default:
+                //check defined identifiers
+                if (iHEAD != NULL) {
+                    iCURR = iHEAD;
+                    if (strcmp(sVal, iCURR->name) == 0) {
+                        //identifier found
+                        performOperation(iCURR->data);
+                    }
+                    else {
+                        while (iCURR != NULL) {
+                            if (strcmp(sVal, iCURR->name) == 0) {
+                                //identifier found
+                                performOperation(iCURR->data);
+                                break;
+                            }
+                            iCURR = iCURR->next;
+                        }
+                    }
+                }
+                break;
+        }
     }
 }
 
 void pop() {
-    if(pos != 0) {
-        //don't pop last value
+    if(pos >= 0) {
+        result = stack[pos];
         pos = pos - 1;
         //set the result in the current op from final value
-        performOperation(stack[pos+1]->result->iVal);
+        //TODO: Will need to change this for lists
+        if(pos >= 0) {
+            performOperation(result->result->iVal);
+        }
     }
 }
 
@@ -122,11 +167,24 @@ void push(atom *at) {
 void performOperation(int value) {
     //peek the stack
     atom *at = stack[pos];
-    if (at->result == NULL) {
-        //set first value to operate on
-        at->result = newIntResult(value);
+    if (at->type == oDEFINE) {
+        //set the value of the custom identifier
+        setCurrentIdentifier();
+        iCURR->data = value;
+    }
+    else if (at->result == NULL) {
+        //switch (at->type) {
+            //TODO: might be able to get rid of this
+            //default:
+                //add, sub, mult, divide
+                //set first value to operate on
+                at->result = newIntResult(value);
+                //break;
+        //}
     } else {
         switch (at->type) {
+            case oDEFINE:
+                at->result->iVal = value;
             case oADD:
                 //add to value
                 printf("%d + %d\n", stack[pos]->result->iVal, value);
@@ -146,9 +204,17 @@ void performOperation(int value) {
                 at->result->iVal = at->result->iVal / value;
                 break;
             default:
-                //check defined identifiers
+                fatalError ("Unrecognized operation");
                 break;
         }
+    }
+}
+
+void setCurrentIdentifier() {
+    //find the last custom identifier
+    iCURR = iHEAD;
+    while (iCURR->next != NULL) {
+        iCURR = iCURR->next;
     }
 }
 
@@ -157,7 +223,7 @@ atom* evalList(exprs *l, int n) {
     evalExpr(l->e, n);
     evalList(l->n, n);
     //return end result from last value in stack
-    return stack[0];
+    return result;
 }
 
 /* end of eval.c */

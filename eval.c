@@ -68,8 +68,11 @@ void evalExpr(expr *e, int n) {
             performOperation(e->iVal);
             break;
         case eExprList:
-            evalList(e->eVal, n+1);
-            pop();
+            // do not evaluate empty list
+            if (e->eVal != NULL) {
+                evalList(e->eVal, n+1);
+                pop();
+            }
             break;
         default:
             break;
@@ -168,6 +171,7 @@ void pop() {
 }
 
 void push(atom *at) {
+    //add a value to the end of the stack
     if (pos != MAXSIZE) {
         pos = pos + 1;
         stack[pos] = at;

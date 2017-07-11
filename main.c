@@ -78,7 +78,7 @@ int main (int argc, char** argv) {
 #else /* Evaluate */
     e = parse();
     //evaluate tree
-    //TODO: check atom type
+    //TODO: check atom type and not NULL
     printf("%d", evalList(e, 0)->result->iVal);
     /* Evaluate e here */
 #endif

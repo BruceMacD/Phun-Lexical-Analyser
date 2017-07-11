@@ -56,8 +56,8 @@ typedef struct identifier
 /*
  * States for operations
  */
-//TODO: Expand operationTypes
-typedef enum { oADD, oSUB , oMULT, oDIV, oCAR, oCDR, oLIST, oCONS, oDEFINE } identifierType;
+//identifier types
+typedef enum { oADD, oSUB , oMULT, oDIV, oCAR, oCDR, oLIST, oCONS, oDEFINE, oQUOTE } identifierType;
 
 /*
  * For tracking current operation
@@ -65,11 +65,10 @@ typedef enum { oADD, oSUB , oMULT, oDIV, oCAR, oCDR, oLIST, oCONS, oDEFINE } ide
 typedef struct atom
 {
     identifierType type;
-    // pointer to next operation
-    //TODO: needed?
-    struct atom* nextAtom;
+    // pointer a stored list
+    struct identifier* listHead;
     // store running result
-    struct expression* result;
+    int iVal;
 } atom;
 
 /*
@@ -97,5 +96,6 @@ void push(atom *at);
 void performOperation(int value);
 void setCurrentIdentifier();
 void removeIdentifier(char *sVal);
+void addToList(char *sVal);
 
 /* end of phun.h */

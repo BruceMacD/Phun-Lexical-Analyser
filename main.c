@@ -20,6 +20,7 @@ FILE *ifp;
 char *name;
 int   idx = 0;
 int   line = 1;
+atom *a;
 
 /*
  * Basic error function. Print a message and abort.
@@ -79,7 +80,21 @@ int main (int argc, char** argv) {
     e = parse();
     //evaluate tree
     //TODO: check atom type and not NULL
-    printf("%d", evalList(e, 0)->result->iVal);
+    a = evalList(e, 0);
+    if (a != NULL) {
+        //check if there is a return value
+        if (a->iVal != NULL) {
+            printf("%d\n", a->iVal);
+        }
+        //check for returned list
+        if (a->listHead != NULL) {
+            identifier *i = a->listHead;
+            while (i != NULL) {
+                printf("%s ", i->name);
+                i = i->next;
+            }
+        }
+    }
     /* Evaluate e here */
 #endif
     return (SUCCESS);

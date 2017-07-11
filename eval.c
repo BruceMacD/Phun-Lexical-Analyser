@@ -14,14 +14,18 @@ int pos = -1;
 identifier* iHEAD = NULL;
 //for navigating list of defined identifiers
 identifier* iCURR;
+//store list
+identifier* iList = NULL;
 //for returning result
 atom* result = NULL;
 
-atom *newAtom (identifierType type, atom *next, struct expression* result) {
+atom *newAtom (identifierType type, int iVal, identifier* listHead) {
     atom *a = malloc(sizeof (atom));
     a->type = type;
-    a->nextAtom = next;
-    a->result = result;
+    //running result of operations
+    a->iVal = iVal;
+    //pointer to head of list attached to atom
+    a->listHead = listHead;
     return (a);
 }
 
@@ -31,23 +35,6 @@ identifier *newIdentifier(char* name, int data, identifier *next) {
     i->data = data;
     i->next = next;
     return (i);
-}
-/*
- * expression Functions
- */
-
-expr *newListResult(exprs *l) {
-    expr *result = malloc(sizeof (expr));
-    result->eVal = l;
-    result->type = eExprList;
-    return (result);
-}
-
-expr *newIntResult(int i) {
-    expr *result = malloc(sizeof (expr));
-    result->iVal = i;
-    result->type = eInt;
-    return (result);
 }
 
 /*
@@ -80,7 +67,7 @@ void evalExpr(expr *e, int n) {
 }
 
 void symbolTable(char *sVal) {
-
+    //TODO: car, cdr, cons
     //in definition state, add to global symbol table
     //check for definition
     if (pos != -1 && stack[pos]->type == oDEFINE) {
@@ -103,13 +90,18 @@ void symbolTable(char *sVal) {
         }
     }
     else if (strcmp(sVal, "quote") == 0) {
-        //strip quote and return atom
-        //TODO
-        printf("quote");
-        fflush(stdout);
+        //Add next value to list
+        push(newAtom(oQUOTE, NULL, NULL));
+    }
+    else if (strcmp(sVal, "list") == 0) {
+        //return a list of the atoms
+        push(newAtom(oLIST, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
+    }
+    else if (pos != -1 && stack[pos]->type == oQUOTE){
+        //add atom to list, do not evaluate
+        addToList(sVal);
     }
     else {
-        //TODO: car, cat, etc
         switch (*sVal) {
             case '+':
                 //push operation to stack
@@ -164,8 +156,8 @@ void pop() {
         pos = pos - 1;
         //set the result in the current op from final value
         //TODO: Will need to change this for lists
-        if(pos >= 0) {
-            performOperation(result->result->iVal);
+        if(pos >= 0 && result->iVal != NULL) {
+            performOperation(result->iVal);
         }
     }
 }
@@ -189,34 +181,38 @@ void performOperation(int value) {
         setCurrentIdentifier();
         iCURR->data = value;
     }
-    else if (at->result == NULL) {
+    else if (at->type == oLIST) {
+        //add to the end of the list
+        addToList((char*) at->iVal);
+    }
+    else if (at->iVal == NULL) {
         //switch (at->type) {
             //TODO: might be able to get rid of this
             //default:
                 //add, sub, mult, divide
                 //set first value to operate on
-                at->result = newIntResult(value);
+                at->iVal = value;
                 //break;
         //}
     } else {
         switch (at->type) {
             case oADD:
                 //add to value
-                printf("%d + %d\n", stack[pos]->result->iVal, value);
-                at->result->iVal = at->result->iVal + value;
+                printf("%d + %d\n", stack[pos]->iVal, value);
+                at->iVal = at->iVal + value;
                 break;
             case oSUB:
                 //sub from value
-                printf("%d - %d\n", stack[pos]->result->iVal, value);
-                at->result->iVal = at->result->iVal - value;
+                printf("%d - %d\n", stack[pos]->iVal, value);
+                at->iVal = at->iVal - value;
                 break;
             case oMULT:
                 //multiply value
-                at->result->iVal = at->result->iVal * value;
+                at->iVal = at->iVal * value;
                 break;
             case oDIV:
                 //divide value
-                at->result->iVal = at->result->iVal / value;
+                at->iVal = at->iVal / value;
                 break;
             default:
                 fatalError ("Unrecognized operation");
@@ -261,6 +257,16 @@ void removeIdentifier(char *sVal) {
             }
         }
     }
+}
+
+void addToList(char *sVal) {
+    //go to end of list
+    identifier *endOfList = stack[pos-1]->listHead;
+    while (endOfList->next->name != ")") {
+        endOfList = endOfList->next;
+    }
+    //add new value as next
+    endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
 }
 
 atom* evalList(exprs *l, int n) {

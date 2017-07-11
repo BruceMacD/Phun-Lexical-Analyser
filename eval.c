@@ -81,7 +81,9 @@ void symbolTable(char *sVal) {
     //in definition state, add to global symbol table
     //check for definition
     if (pos != -1 && stack[pos]->type == oDEFINE) {
-        //get current
+        //check if identifier is already defined and remove the old value
+        removeIdentifier(sVal);
+        //set the new identifier at the end of the list
         setCurrentIdentifier();
         iCURR->name = sVal;
     }
@@ -91,14 +93,15 @@ void symbolTable(char *sVal) {
         if (iHEAD == NULL) {
             //set the head
             iHEAD = newIdentifier(NULL, NULL, NULL);
-        } else {
-            //set the next identifier
+        }
+        else {
             setCurrentIdentifier();
             iCURR->next = newIdentifier(NULL, NULL, NULL);
         }
     }
     else if (strcmp(sVal, "quote") == 0) {
         //strip quote and return atom
+        //TODO
         printf("quote");
         fflush(stdout);
     }
@@ -126,13 +129,15 @@ void symbolTable(char *sVal) {
                 //check defined identifiers
                 if (iHEAD != NULL) {
                     iCURR = iHEAD;
-                    if (strcmp(sVal, iCURR->name) == 0) {
-                        //identifier found
+                    if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
+                        //identifier found, perform operation
                         performOperation(iCURR->data);
+                        break;
                     }
+                    //not the head value, iterate through the rest
                     else {
                         while (iCURR != NULL) {
-                            if (strcmp(sVal, iCURR->name) == 0) {
+                            if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
                                 //identifier found
                                 performOperation(iCURR->data);
                                 break;
@@ -140,6 +145,10 @@ void symbolTable(char *sVal) {
                             iCURR = iCURR->next;
                         }
                     }
+                }
+                if (iCURR == NULL) {
+                    //if this is reached identifier was not found
+                    fatalError ("Unknown identifier");
                 }
                 break;
         }
@@ -187,8 +196,6 @@ void performOperation(int value) {
         //}
     } else {
         switch (at->type) {
-            case oDEFINE:
-                at->result->iVal = value;
             case oADD:
                 //add to value
                 printf("%d + %d\n", stack[pos]->result->iVal, value);
@@ -219,6 +226,36 @@ void setCurrentIdentifier() {
     iCURR = iHEAD;
     while (iCURR->next != NULL) {
         iCURR = iCURR->next;
+    }
+}
+
+void removeIdentifier(char *sVal) {
+    //check defined identifiers
+    if (iHEAD != NULL) {
+        iCURR = iHEAD;
+        if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
+            //identifier found, set as head to next which should exist
+            iHEAD = iCURR->next;
+            return;
+        }
+        //not the head value, check the rest
+        else {
+            while (iCURR != NULL) {
+                if (iCURR->next != NULL && iCURR->next->name != NULL && strcmp(sVal, iCURR->next->name) == 0) {
+                    //identifier found, remove
+                    if (iCURR->next->next != NULL) {
+                        //set next to skip value
+                        iCURR->next = iCURR->next->next;
+                    }
+                    else {
+                        //now the end of the list
+                        iCURR->next = NULL;
+                    }
+                    return;
+                }
+                iCURR = iCURR->next;
+            }
+        }
     }
 }
 

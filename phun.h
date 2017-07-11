@@ -96,5 +96,6 @@ void pop();
 void push(atom *at);
 void performOperation(int value);
 void setCurrentIdentifier();
+void removeIdentifier(char *sVal);
 
 /* end of phun.h */

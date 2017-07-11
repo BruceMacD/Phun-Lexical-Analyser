@@ -12,6 +12,7 @@
 /* STAGE == 1:SCAN, 2:PARSE, 3:EVAL */
 #define STAGE 3
 
+
 /*
  * Global variables for input file
  */
@@ -77,7 +78,8 @@ int main (int argc, char** argv) {
 #else /* Evaluate */
     e = parse();
     //evaluate tree
-    printf("%d", evalList(e, 0));
+    //TODO: check atom type
+    printf("%d", evalList(e, 0)->result->iVal);
     /* Evaluate e here */
 #endif
     return (SUCCESS);

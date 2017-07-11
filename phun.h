@@ -62,14 +62,18 @@ typedef enum { oADD, oSUB , oMULT, oDIV, oCAR, oCDR, oLIST, oCONS, oDEFINE } ide
 /*
  * For tracking current operation
  */
-typedef struct operation
+typedef struct atom
 {
     identifierType type;
     // pointer to next operation
-    struct operation* nextOperation;
+    struct atom* nextAtom;
     // store running result
-    int result;
-} operation;
+    struct expression* result;
+} atom;
+
+/*
+ * Different expressions
+ */
 
 /*
  * Function Declarations
@@ -85,10 +89,10 @@ exprs *parse();
 exprs *parseFileList (token t);
 exprs *parseExprList (token t);
 expr  *parseExpr (token t);
-int evalList(exprs *l, int n);
+atom* evalList(exprs *l, int n);
 void symbolTable(char* sVal);
 void pop();
-void push(operation *op);
+void push(atom *at);
 void performOperation(int value);
 
 /* end of phun.h */

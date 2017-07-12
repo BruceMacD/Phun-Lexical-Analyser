@@ -1,1 +1,2 @@
-(define sum (lambda 'Hello (x y) (+ x y)))
+(define a 9)
+(cons a '(b c))

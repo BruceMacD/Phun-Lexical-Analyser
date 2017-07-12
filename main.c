@@ -12,6 +12,7 @@
 /* STAGE == 1:SCAN, 2:PARSE, 3:EVAL */
 #define STAGE 3
 
+
 /*
  * Global variables for input file
  */
@@ -19,6 +20,7 @@ FILE *ifp;
 char *name;
 int   idx = 0;
 int   line = 1;
+atom *a;
 
 /*
  * Basic error function. Print a message and abort.
@@ -77,7 +79,23 @@ int main (int argc, char** argv) {
 #else /* Evaluate */
     e = parse();
     //evaluate tree
-    evalList(e, 0);
+    //TODO: check atom type and not NULL
+    a = evalList(e, 0);
+    if (a != NULL) {
+        //check if there is a return value
+        if (a->iVal != NULL) {
+            printf("%d\n", a->iVal);
+        }
+        //check for returned list
+        if (a->listHead != NULL) {
+            identifier *i = a->listHead;
+            while (i != NULL) {
+                printf("%s ", i->name);
+                fflush(stdout);
+                i = i->next;
+            }
+        }
+    }
     /* Evaluate e here */
 #endif
     return (SUCCESS);

@@ -13,6 +13,8 @@ stdlib.h
 -
 ctype.h
 -
+string.h
+-
 phun.h
 /home/brucem/Development/Phun-Lexical-Analyser/phun.h
 

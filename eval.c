@@ -9,8 +9,9 @@
 #include "phun.h"
 
 atom* stack[MAXSIZE];
+//position in the stack
 int pos = -1;
-//store first defined identifier in linked list
+//store first defined identifier in linked list of identifiers
 identifier* iHEAD = NULL;
 //for navigating list of defined identifiers
 identifier* iCURR;
@@ -19,6 +20,7 @@ atom* result = NULL;
 
 atom *newAtom (identifierType type, int iVal, identifier* listHead) {
     atom *a = malloc(sizeof (atom));
+    //type of operation identifier tracks
     a->type = type;
     //running result of operations
     a->iVal = iVal;
@@ -31,6 +33,7 @@ identifier *newIdentifier(char* name, int data, identifier *next) {
     identifier *i = malloc(sizeof (i));
     i->name = name;
     i->data = data;
+    //pointer to next value in identifier list
     i->next = next;
     return (i);
 }
@@ -56,6 +59,7 @@ void evalExpr(expr *e, int n) {
         case eExprList:
             // do not evaluate empty list
             if (e->eVal != NULL) {
+                //evaluate contents of list
                 evalList(e->eVal, n+1);
                 pop();
             }
@@ -66,9 +70,7 @@ void evalExpr(expr *e, int n) {
 }
 
 void symbolTable(char *sVal) {
-    //TODO: cdr, cons
-    //in definition state, add to global symbol table
-    //check for definition
+    //check for definition operation state
     if (pos != -1 && stack[pos]->type == oDEFINE) {
         //check if identifier is already defined and remove the old value
         removeIdentifier(sVal);
@@ -77,13 +79,14 @@ void symbolTable(char *sVal) {
         iCURR->name = sVal;
     }
     else if (strcmp(sVal, "define") == 0) {
-        //add defined value to symbol table
+        //set operation to definition
         push(newAtom(oDEFINE, NULL, NULL));
         if (iHEAD == NULL) {
-            //set the head
+            //set the head to a new identifier
             iHEAD = newIdentifier(NULL, NULL, NULL);
         }
         else {
+            //add a new identifier to the end of the list
             setCurrentIdentifier();
             iCURR->next = newIdentifier(NULL, NULL, NULL);
         }
@@ -97,22 +100,23 @@ void symbolTable(char *sVal) {
         push(newAtom(oCDR, NULL, newIdentifier("(", NULL, NULL)));
     }
     else if (strcmp(sVal, "quote") == 0) {
-        //Add next value to list
+        //Add next value to list without evaluating
         push(newAtom(oQUOTE, NULL, NULL));
     }
     else if (strcmp(sVal, "list") == 0) {
-        //return a list of the atoms
+        //return a list of the following atoms
         push(newAtom(oLIST, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
     }
     else if (strcmp(sVal, "cons") == 0) {
-        //propend item to list
+        //append item to list
         push(newAtom(oCONS, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
     }
-    //list operations
+    //list operations require adding item to atom list
     else if (pos != -1 && stack[pos]->type == oQUOTE){
         addToList(sVal);
     }
     else {
+        //check for operation
         switch (*sVal) {
             case '+':
                 //push operation to stack
@@ -165,7 +169,7 @@ void pop() {
     if(pos >= 0) {
         result = stack[pos];
         pos = pos - 1;
-        //set the result in the current op from final value
+        //set the result in the current op from final value of the nested operation
         if(pos >= 0 && result->iVal != NULL) {
             performOperation(result->iVal);
         }
@@ -178,6 +182,7 @@ void push(atom *at) {
         pos = pos + 1;
         stack[pos] = at;
     } else {
+        //more operations than can fit on the stack
         fatalError ("Stack overflow");
     }
 
@@ -202,7 +207,8 @@ void performOperation(int value) {
         addToList(str);
     }
     else if (at->iVal == NULL) {
-                at->iVal = value;
+        //value is first in operations
+        at->iVal = value;
     } else {
         switch (at->type) {
             case oADD:
@@ -229,7 +235,7 @@ void performOperation(int value) {
 }
 
 void setCurrentIdentifier() {
-    //find the last custom identifier
+    //find the last custom identifier in the list
     iCURR = iHEAD;
     while (iCURR->next != NULL) {
         iCURR = iCURR->next;
@@ -237,7 +243,7 @@ void setCurrentIdentifier() {
 }
 
 void removeIdentifier(char *sVal) {
-    //check defined identifiers
+    //check defined identifiers for value, if found remove it
     if (iHEAD != NULL) {
         iCURR = iHEAD;
         if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
@@ -267,7 +273,7 @@ void removeIdentifier(char *sVal) {
 }
 
 void addToList(char *sVal) {
-   //if car, set list to value if not already set
+   //if car, set head list to value if not already set, this returns only the first value found
     if(pos > 0 && stack[pos-1]->type == oCAR) {
         if (stack[pos-1]->listHead->name == NULL) {
             //set as first value in list
@@ -279,10 +285,10 @@ void addToList(char *sVal) {
         //trick to skip first value, it just adds the closing bracket and continues
         stack[pos-1]->listHead->next = newIdentifier(")", NULL, NULL);
     }
-    else if (pos == 0){
-        //set the current atom
+    else if (stack[pos]->type == oQUOTE){
+        //set the previous atom
         //go to end of list
-        identifier *endOfList = stack[pos]->listHead;
+        identifier *endOfList = stack[pos - 1]->listHead;
         while (endOfList->next->name != ")") {
             endOfList = endOfList->next;
         }
@@ -290,9 +296,9 @@ void addToList(char *sVal) {
         endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
     }
     else {
-        //set the last atom
+        //set the current atom
         //go to end of list
-        identifier *endOfList = stack[pos - 1]->listHead;
+        identifier *endOfList = stack[pos]->listHead;
         while (endOfList->next->name != ")") {
             endOfList = endOfList->next;
         }

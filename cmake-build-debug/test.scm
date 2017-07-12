@@ -1,1 +1,2 @@
-(cdr '4 5 6)
+(define a 9)
+(cons a '(b c))

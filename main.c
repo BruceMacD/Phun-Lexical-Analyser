@@ -91,6 +91,7 @@ int main (int argc, char** argv) {
             identifier *i = a->listHead;
             while (i != NULL) {
                 printf("%s ", i->name);
+                fflush(stdout);
                 i = i->next;
             }
         }

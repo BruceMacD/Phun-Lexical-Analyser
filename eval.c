@@ -14,8 +14,6 @@ int pos = -1;
 identifier* iHEAD = NULL;
 //for navigating list of defined identifiers
 identifier* iCURR;
-//store list
-identifier* iList = NULL;
 //for returning result
 atom* result = NULL;
 
@@ -44,6 +42,7 @@ identifier *newIdentifier(char* name, int data, identifier *next) {
 void evalExpr(expr *e, int n) {
     switch (e->type) {
         case eString:
+            //not yet evaluated
             printf("String: [%s]\n", e->sVal);
             break;
         case eIdent:
@@ -67,7 +66,7 @@ void evalExpr(expr *e, int n) {
 }
 
 void symbolTable(char *sVal) {
-    //TODO: car, cdr, cons
+    //TODO: cdr, cons
     //in definition state, add to global symbol table
     //check for definition
     if (pos != -1 && stack[pos]->type == oDEFINE) {
@@ -89,6 +88,14 @@ void symbolTable(char *sVal) {
             iCURR->next = newIdentifier(NULL, NULL, NULL);
         }
     }
+    else if (strcmp(sVal, "car") == 0) {
+        //return the head of the list
+        push(newAtom(oCAR, NULL, newIdentifier(NULL, NULL, NULL)));
+    }
+    else if (strcmp(sVal, "cdr") == 0) {
+        //remove the head of the list
+        push(newAtom(oCDR, NULL, newIdentifier("(", NULL, NULL)));
+    }
     else if (strcmp(sVal, "quote") == 0) {
         //Add next value to list
         push(newAtom(oQUOTE, NULL, NULL));
@@ -97,8 +104,12 @@ void symbolTable(char *sVal) {
         //return a list of the atoms
         push(newAtom(oLIST, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
     }
+    else if (strcmp(sVal, "cons") == 0) {
+        //propend item to list
+        push(newAtom(oCONS, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
+    }
+    //list operations
     else if (pos != -1 && stack[pos]->type == oQUOTE){
-        //add atom to list, do not evaluate
         addToList(sVal);
     }
     else {
@@ -155,7 +166,6 @@ void pop() {
         result = stack[pos];
         pos = pos - 1;
         //set the result in the current op from final value
-        //TODO: Will need to change this for lists
         if(pos >= 0 && result->iVal != NULL) {
             performOperation(result->iVal);
         }
@@ -181,29 +191,26 @@ void performOperation(int value) {
         setCurrentIdentifier();
         iCURR->data = value;
     }
-    else if (at->type == oLIST) {
+    else if (at->type == oQUOTE || at->type == oCONS || at->type == oLIST) {
         //add to the end of the list
-        addToList((char*) at->iVal);
+        //first convert to char*
+        char* str;
+        //avoid buffer overflow
+        str = malloc(16);
+        //copy value to char*
+        snprintf(str, 16, "%d", value);
+        addToList(str);
     }
     else if (at->iVal == NULL) {
-        //switch (at->type) {
-            //TODO: might be able to get rid of this
-            //default:
-                //add, sub, mult, divide
-                //set first value to operate on
                 at->iVal = value;
-                //break;
-        //}
     } else {
         switch (at->type) {
             case oADD:
                 //add to value
-                printf("%d + %d\n", stack[pos]->iVal, value);
                 at->iVal = at->iVal + value;
                 break;
             case oSUB:
                 //sub from value
-                printf("%d - %d\n", stack[pos]->iVal, value);
                 at->iVal = at->iVal - value;
                 break;
             case oMULT:
@@ -260,13 +267,38 @@ void removeIdentifier(char *sVal) {
 }
 
 void addToList(char *sVal) {
-    //go to end of list
-    identifier *endOfList = stack[pos-1]->listHead;
-    while (endOfList->next->name != ")") {
-        endOfList = endOfList->next;
+   //if car, set list to value if not already set
+    if(pos > 0 && stack[pos-1]->type == oCAR) {
+        if (stack[pos-1]->listHead->name == NULL) {
+            //set as first value in list
+            stack[pos-1]->listHead->name = sVal;
+        }
     }
-    //add new value as next
-    endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
+    //if cdr, set list to remove first value
+    else if(pos > 0 && stack[pos-1]->type == oCDR && stack[pos-1]->listHead->next == NULL) {
+        //trick to skip first value, it just adds the closing bracket and continues
+        stack[pos-1]->listHead->next = newIdentifier(")", NULL, NULL);
+    }
+    else if (pos == 0){
+        //set the current atom
+        //go to end of list
+        identifier *endOfList = stack[pos]->listHead;
+        while (endOfList->next->name != ")") {
+            endOfList = endOfList->next;
+        }
+        //add new value as next with closing quote
+        endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
+    }
+    else {
+        //set the last atom
+        //go to end of list
+        identifier *endOfList = stack[pos - 1]->listHead;
+        while (endOfList->next->name != ")") {
+            endOfList = endOfList->next;
+        }
+        //add new value as next with closing quote
+        endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
+    }
 }
 
 atom* evalList(exprs *l, int n) {

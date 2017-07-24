@@ -216,7 +216,6 @@ expr *eval(expr *e) {
                 fatalError("Invalid operator in function application");
             }
             if (!strcasecmp (op->sVal,"define")) {
-                //TODO: This is very fragile, could result in a seg fault easily
                 if (list->n->e->eVal != NULL && !strcasecmp (list->n->e->eVal->e->sVal,"lambda")) {
                     // This means a function is being defined, add it to the function table
                     //read the entire enclosed function

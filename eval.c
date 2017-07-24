@@ -244,28 +244,34 @@ expr *eval(expr *e) {
             } else if (!strcmp (op->sVal,"/")) {
                 return (doBinaryOp(DIV,list));
             } else {
-                //check defined functions
+                //check defined functions for name of evaluation
                 f = lookupFunction(e->eVal->e->sVal);
                 if (f == NULL)
                     evalError(e->eVal->e->sVal);
-                //put the values in the symbol table
+                //get the indentifiers that must be defined to use this function
                 symbol *param = f->fst.first;
                 //iterate through each value setting the data and binding it
                 for (int i = 0; i < f->fst.length; i++) {
                     if (list->e->type == eIdent) {
+                        //find the value
                         s = lookup(list->e->sVal);
                         if (s == NULL)
                             fatalError("Unbound symbol");
                         param->data = s->data;
                     } else if (list->e->type == eExprList){
+                        //set the value to the result
                         param->data = eval(list->e);
                     } else if (list->e->type == eInt){
+                        //set the value to the int value
                         param->data = list->e;
                     } else {
                         fatalError("Unknown operation");
                     }
+                    //add to symbol table
                     bind(param->name, param->data);
+                    //set the next parameter
                     param = param->next;
+                    //get the next value to assign parameter
                     list = list->n;
                 }
                 return (eval(f->operation));

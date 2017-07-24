@@ -3,5 +3,5 @@
 (define incr (lambda (x) (sum x 1)))
 (define a 5)
 (incr a)
-(sum (incr 5) 6)
+(sum (incr 5) (incr 5))
 (prod 5 6)

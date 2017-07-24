@@ -15,8 +15,6 @@
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/cmake-build-debug/test.scm" afterPath="$PROJECT_DIR$/cmake-build-debug/test.scm" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/eval.c" afterPath="$PROJECT_DIR$/eval.c" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.c" afterPath="$PROJECT_DIR$/main.c" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/phun.h" afterPath="$PROJECT_DIR$/phun.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/test.scm" afterPath="$PROJECT_DIR$/test.scm" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -41,23 +39,11 @@
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="eval.c" pinned="false" current-in-tab="true">
-            <entry file="file://$PROJECT_DIR$/eval.c">
-              <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="1740">
-                  <caret line="240" column="47" lean-forward="true" selection-start-line="240" selection-start-column="47" selection-end-line="240" selection-end-column="47" />
-                  <folding>
-                    <element signature="e#76#94#0" expanded="true" />
-                  </folding>
-                </state>
-              </provider>
-            </entry>
-          </file>
-          <file leaf-file-name="main.c" pinned="false" current-in-tab="false">
+          <file leaf-file-name="main.c" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/main.c">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="342">
-                  <caret line="24" column="14" lean-forward="true" selection-start-line="24" selection-start-column="14" selection-end-line="24" selection-end-column="14" />
+                <state relative-caret-position="318">
+                  <caret line="98" column="41" lean-forward="false" selection-start-line="98" selection-start-column="41" selection-end-line="98" selection-end-column="41" />
                   <folding>
                     <element signature="e#101#119#0" expanded="true" />
                   </folding>
@@ -79,7 +65,19 @@
       </split-first>
       <split-second>
         <leaf>
-          <file leaf-file-name="phun.h" pinned="false" current-in-tab="true">
+          <file leaf-file-name="eval.c" pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/eval.c">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="212">
+                  <caret line="253" column="0" lean-forward="false" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
+                  <folding>
+                    <element signature="e#76#94#0" expanded="true" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file leaf-file-name="phun.h" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/phun.h">
               <provider selected="true" editor-type-id="text-editor">
                 <state relative-caret-position="286">
@@ -92,8 +90,8 @@
           <file leaf-file-name="main.c" pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/main.c">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="512">
-                  <caret line="86" column="16" lean-forward="false" selection-start-line="86" selection-start-column="16" selection-end-line="86" selection-end-column="16" />
+                <state relative-caret-position="232">
+                  <caret line="115" column="0" lean-forward="false" selection-start-line="115" selection-start-column="0" selection-end-line="115" selection-end-column="0" />
                   <folding>
                     <element signature="e#101#119#0" expanded="true" />
                   </folding>
@@ -127,9 +125,9 @@
         <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/lexer.c" />
         <option value="$PROJECT_DIR$/parser.c" />
-        <option value="$PROJECT_DIR$/main.c" />
-        <option value="$PROJECT_DIR$/eval.c" />
         <option value="$PROJECT_DIR$/phun.h" />
+        <option value="$PROJECT_DIR$/eval.c" />
+        <option value="$PROJECT_DIR$/main.c" />
       </list>
     </option>
   </component>
@@ -414,12 +412,12 @@
       <workItem from="1500745372986" duration="1995000" />
       <workItem from="1500751752200" duration="1882000" />
       <workItem from="1500768677266" duration="1735000" />
-      <workItem from="1500823662535" duration="22219000" />
+      <workItem from="1500823662535" duration="24222000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="101998000" />
+    <option name="totallyTimeSpent" value="104001000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="388" width="1920" height="1173" extended-state="6" />
@@ -478,7 +476,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/main.c</url>
-          <line>183</line>
+          <line>211</line>
           <option name="timeStamp" value="52" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
@@ -498,11 +496,11 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
           <url>file://$PROJECT_DIR$/eval.c</url>
-          <line>247</line>
-          <option name="timeStamp" value="96" />
+          <line>253</line>
+          <option name="timeStamp" value="100" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="97" />
+      <option name="time" value="101" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -911,16 +909,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/main.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="342">
-          <caret line="24" column="14" lean-forward="true" selection-start-line="24" selection-start-column="14" selection-end-line="24" selection-end-column="14" />
-          <folding>
-            <element signature="e#101#119#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/phun.h">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-418">
@@ -931,10 +919,20 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/eval.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1740">
-          <caret line="240" column="47" lean-forward="true" selection-start-line="240" selection-start-column="47" selection-end-line="240" selection-end-column="47" />
+        <state relative-caret-position="212">
+          <caret line="253" column="0" lean-forward="false" selection-start-line="253" selection-start-column="0" selection-end-line="253" selection-end-column="0" />
           <folding>
             <element signature="e#76#94#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="318">
+          <caret line="98" column="41" lean-forward="false" selection-start-line="98" selection-start-column="41" selection-end-line="98" selection-end-column="41" />
+          <folding>
+            <element signature="e#101#119#0" expanded="true" />
           </folding>
         </state>
       </provider>

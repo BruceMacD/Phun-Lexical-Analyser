@@ -83,25 +83,8 @@ symbol *lookup(char *name) {
  */
 symbol *bind(char *name, expr *val) {
     symbol *s = malloc (sizeof (symbol));
-    printf("Bind %s - %d\n", name, val->iVal);
     s->name = name;
     s->data = val;
-    s->next = st.first;
-    st.first = s;
-    st.length++;
-    return(s);
-}
-
-/*
- * Add an identifier to the symbol table for functions
- */
-symbol *bindFunctionIdentifiers(char *name, expr *val) {
-    symbol *s = malloc (sizeof (symbol));
-    s->name = name;
-    s->data = val;
-    //if (st.first == NULL) {
-
-    //}
     s->next = st.first;
     st.first = s;
     st.length++;

@@ -244,29 +244,46 @@ expr *eval(expr *e) {
             } else if (!strcmp (op->sVal,"/")) {
                 return (doBinaryOp(DIV,list));
             } else {
-                //check defined functions
+                //check defined functions for name of evaluation
                 f = lookupFunction(e->eVal->e->sVal);
                 if (f == NULL)
                     evalError(e->eVal->e->sVal);
-                //put the values in the symbol table
+                //get the indentifiers that must be defined to use this function
                 symbol *param = f->fst.first;
+                //an array to store the current identifier values
+                int vals[f->fst.length];
                 //iterate through each value setting the data and binding it
                 for (int i = 0; i < f->fst.length; i++) {
                     if (list->e->type == eIdent) {
+                        //find the value
                         s = lookup(list->e->sVal);
                         if (s == NULL)
                             fatalError("Unbound symbol");
-                        param->data = s->data;
+                        vals[i] = s->data->iVal;
                     } else if (list->e->type == eExprList){
-                        param->data = eval(list->e);
+                        //set the value to the result
+                        vals[i] = eval(list->e)->iVal;
                     } else if (list->e->type == eInt){
-                        param->data = list->e;
+                        //set the value to the int value
+                        vals[i] = list->e->iVal;
                     } else {
                         fatalError("Unknown operation");
                     }
-                    bind(param->name, param->data);
+                    //set the next parameter
                     param = param->next;
+                    //get the next value to assign parameter
                     list = list->n;
+                }
+                //add found values to the symbol table
+                param = f->fst.first;
+                //iterate through each value setting the data and binding it
+                for (int i = 0; i < f->fst.length; i++) {
+                    //an expression to hold the value
+                    expr * temp = malloc (sizeof (expr));
+                    temp->type = eInt;
+                    temp->iVal = vals[i];
+                    bind(param->name, temp);
+                    param = param->next;
                 }
                 return (eval(f->operation));
             }                

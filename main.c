@@ -97,11 +97,14 @@ symbol *bind(char *name, expr *val) {
 function *lookupFunction(char *name) {
     function *f;
     if (ft.length == 0) return NULL;
+    //get the head of the function table
     f = ft.first;
     while (f != NULL) {
+        //check if the function is the one we are looking for
         if (!strcmp(name,f->name)) return(f);
         f = f->next;
     }
+    //not found
     return NULL;
 }
 
@@ -126,8 +129,16 @@ function *bindFunction(char *name, expr *val) {
             s->name = exprL->e->sVal;
             //no data yet, will be assigned on call
             s->data = NULL;
-            s->next = fst.first;
-            fst.first = s;
+            s->next = NULL;
+            if (fst.first == NULL) {
+                fst.first = s;
+            } else {
+                symbol *iterator = fst.first;
+                while (iterator->next != NULL) {
+                    iterator = iterator->next;
+                }
+                iterator->next = s;
+            }
             fst.length++;
         }
         //go to the next value

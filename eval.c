@@ -102,6 +102,56 @@ expr *doDefine(exprs *ls) {
     return(NULL); /* don't want main to print anything, so return NULL */
 }
 
+expr *doParams(exprs *ls) {
+    expr *name;
+    expr *val;
+    symbol *s;
+    if (ls == NULL)
+        fatalError("Definition missing name and value");
+    name = ls->e;
+    if (name->type != eIdent)
+        fatalError("Missing identifier in a definition");
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Definition missing a value");
+    val = ls->e;
+    if (ls->n != NULL)
+        fatalError("Extra expressions in a definition");
+    val = eval(val);
+    s = lookup(name->sVal);
+    if (s != NULL) {
+        s->data = val;
+    } else {
+        bind(name->sVal,val);
+    }
+    return(NULL); /* don't want main to print anything, so return NULL */
+}
+
+expr *doDefineFunction(exprs *ls) {
+    expr *name;
+    expr *operation;
+    function *f;
+    if (ls == NULL)
+        fatalError("Definition missing name and value");
+    name = ls->e;
+    if (name->type != eIdent)
+        fatalError("Missing identifier in a definition");
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Definition missing a value");
+    operation = ls->e;
+    if (ls->n != NULL)
+        fatalError("Extra expressions in a definition");
+    //val = eval(val);
+    f = lookupFunction(name->sVal);
+    if (f != NULL) {
+        f->operation = operation;
+    } else {
+        bindFunction(name->sVal, operation);
+    }
+    return(NULL); /* don't want main to print anything, so return NULL */
+}
+
 /*
  * Evaluate the arguments for binary+ operators and then apply the operation
  * - repeat as necessary for 3+ arguments in the list
@@ -143,6 +193,7 @@ expr *eval(expr *e) {
     expr   *op;
     exprs  *list;
     symbol *s;
+    function *f;
     
     switch (e->type) {
         case eString:
@@ -165,7 +216,15 @@ expr *eval(expr *e) {
                 fatalError("Invalid operator in function application");
             }
             if (!strcasecmp (op->sVal,"define")) {
+                //TODO: This is very fragile, could result in a seg fault easily
+                if (list->n->e->eVal != NULL && !strcasecmp (list->n->e->eVal->e->sVal,"lambda")) {
+                    // This means a function is being defined, add it to the function table
+                    //read the entire enclosed function
+                    return(doDefineFunction(list));
+                }
                 return (doDefine(list));
+            } else if (!strcasecmp (op->sVal,"lambda")) {
+                return (doParams(list));
             } else if (!strcasecmp (op->sVal,"car")) {
                 return (doCar(list));
             } else if (!strcasecmp (op->sVal,"cdr")) {
@@ -185,7 +244,20 @@ expr *eval(expr *e) {
             } else if (!strcmp (op->sVal,"/")) {
                 return (doBinaryOp(DIV,list));
             } else {
-                fatalError("Unbound operator in function application");
+                //check defined functions
+                f = lookupFunction(e->eVal->e->sVal);
+                if (f == NULL)
+                    fatalError("Unbound operator in function application");
+                //put the values in the symbol table
+                symbol *param = f->fst.first;
+                //iterate through each value setting the data and binding it
+                for (int i = 0; i < f->fst.length; i++) {
+                    param->data = list->e;
+                    bind(param->name, param->data);
+                    param = param->next;
+                    list = list->n;
+                }
+                return (eval(f->operation));
             }                
             break;
         default:

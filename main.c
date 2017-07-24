@@ -23,6 +23,8 @@ int   line = 1;
 
 #if STAGE == 3 /* Evaluation - need a symbol table */
     symtab st;
+    //function table
+    funtab ft;
 #endif
 
 /*
@@ -82,6 +84,57 @@ symbol *bind(char *name, expr *val) {
     st.first = s;
     st.length++;
     return(s);
+}
+
+/*
+ * Find a function in the function table
+ */
+function *lookupFunction(char *name) {
+    function *f;
+    if (ft.length == 0) return NULL;
+    f = ft.first;
+    while (f != NULL) {
+        if (!strcmp(name,f->name)) return(f);
+        f = f->next;
+    }
+    return NULL;
+}
+
+/*
+ * Add an identifier to the function table
+ */
+function *bindFunction(char *name, expr *val) {
+    function *f = malloc (sizeof (function));
+    //function symbol table for needed identifiers
+    symtab fst;
+    fst.length = 0;
+    fst.first = NULL;
+    f->name = name;
+    f->operation = val;
+    //set the val to after the lambda
+    struct exprList *exprL = val->eVal->n->e->eVal;
+    //create bindings for the symbols attached to the function
+    while (exprL != NULL) {
+        if (exprL->e->type == eIdent) {
+            //add to local symbol table
+            symbol *s = malloc (sizeof (symbol));
+            s->name = exprL->e->sVal;
+            //no data yet, will be assigned on call
+            s->data = NULL;
+            s->next = fst.first;
+            fst.first = s;
+            fst.length++;
+        }
+        //go to the next value
+        exprL = exprL->n;
+    }
+    f->fst = fst;
+    //set the operation to the expression after the identifier
+    f->operation = val->eVal->n->n->e;
+    f->next = ft.first;
+    ft.first = f;
+    ft.length++;
+    return(f);
 }
 
 /*

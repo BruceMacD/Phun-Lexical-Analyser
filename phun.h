@@ -55,6 +55,19 @@ typedef struct symtabS {
     symbol *first;    /* ptr to first symbol */
 } symtab;
 
+typedef struct symbolF {
+    char *name;
+    expr *operation;
+    symtab fst;
+    struct symbolF *next;   /* ptr to next node */
+} function;
+
+/* FunctionTable ADT - a linked list */
+typedef struct funtabF {
+    int     length;   /* length */
+    function *first;    /* ptr to first symbol */
+} funtab;
+
 /* ---------------------------- PROTOTYPES ---------------------------- */
 
 void fatalError (char *msg);
@@ -63,6 +76,9 @@ void returnChar (char c);
 
 symbol *lookup(char *name);
 symbol *bind(char *name, expr *val);
+
+function *lookupFunction(char *name);
+function *bindFunction(char *name, expr *val);
 
 void printToken (token t);
 token scan ();

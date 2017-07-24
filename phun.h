@@ -2,15 +2,13 @@
  * Phun Interpreter
  * Tami Meredith, June 2017
  */
-
+ 
 /*
  * Constants
  */
 #define SUCCESS  0
 #define FAILURE -1
 #define DEBUG    1  /* Set to 0 to turn off debugging messages */
-//arbitrary maximum size
-#define MAXSIZE 1024
 
 /*
  * Types for lexical analysis
@@ -21,7 +19,7 @@ typedef enum { tBEGIN, tEND, tQUOTE, tINT, tIDENT, tSTRING, tEOF } tokentype;
 typedef struct {
     tokentype type;
     int       iVal;
-    char     *sVal;
+    char     *sVal;    
 } token;
 
 /*
@@ -42,60 +40,64 @@ typedef struct exprList {
 } exprs;
 
 /*
- * Symbol for storing defined identifier values
+ * Types for super simple symbol tables
+ * - An element in list of symbols 
  */
-typedef struct identifier
-{
-    // name for def identifier
-    char* name;
-    int data;
-    // pointer to next value in the table
-    struct identifier* next;
-} identifier;
+typedef struct symbolS {
+  char *name;
+  expr *data;
+  struct symbolS *next;   /* ptr to next node */
+} symbol;
 
-/*
- * States for operations
- */
-//identifier types
-typedef enum { oADD, oSUB , oMULT, oDIV, oCAR, oCDR, oLIST, oCONS, oDEFINE, oQUOTE } identifierType;
+/* SymbolTable ADT - a linked list */
+typedef struct symtabS {
+    int     length;   /* length */
+    symbol *first;    /* ptr to first symbol */
+} symtab;
 
-/*
- * For tracking current operation
- */
-typedef struct atom
-{
-    identifierType type;
-    // pointer a stored list
-    struct identifier* listHead;
-    // store running result
-    int iVal;
-} atom;
+typedef struct symbolF {
+    char *name;
+    expr *operation;
+    symtab fst;
+    struct symbolF *next;   /* ptr to next node */
+} function;
 
-/*
- * Different expressions
- */
+/* FunctionTable ADT - a linked list */
+typedef struct funtabF {
+    int     length;   /* length */
+    function *first;    /* ptr to first symbol */
+} funtab;
 
-/*
- * Function Declarations
- */
+/* ---------------------------- PROTOTYPES ---------------------------- */
+
 void fatalError (char *msg);
+void evalError (char *name);
 char nextChar ();
 void returnChar (char c);
 
+symbol *lookup(char *name);
+symbol *bind(char *name, expr *val);
+
+function *lookupFunction(char *name);
+function *bindFunction(char *name, expr *val);
+
 void printToken (token t);
 token scan ();
+
+expr *newStringExpr(char *s);
+expr *newIdentExpr(char *s);
+expr *newListExpr(exprs *l);
+expr *newIntExpr(int i);
+exprs *newExprList(expr *e, exprs *n);
 
 exprs *parse();
 exprs *parseFileList (token t);
 exprs *parseExprList (token t);
 expr  *parseExpr (token t);
-atom* evalList(exprs *l, int n);
-void symbolTable(char* sVal);
-void pop();
-void push(atom *at);
-void performOperation(int value);
-void setCurrentIdentifier();
-void removeIdentifier(char *sVal);
-void addToList(char *sVal);
+
+void listPrint(exprs *l);
+void exprPrint(expr *e);
+
+expr *eval(expr *e);
 
 /* end of phun.h */

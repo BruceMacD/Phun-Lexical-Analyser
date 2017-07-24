@@ -1,1 +1,7 @@
 (define sum (lambda (x y) (+ x y)))
+(sum 3 4)
+(define incr (lambda (x) (sum x 1)))
+(define a 5)
+(incr a)
+(sum (incr 5) 6)
+(prod 5 6)

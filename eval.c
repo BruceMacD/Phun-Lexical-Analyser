@@ -1,318 +1,311 @@
-/*
- * AST Evaluator
+/* 
+ * Phun Interpreter
+ * Evaluator Code
+ * Tami Meredith, July 2017
  */
-
+ 
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 #include <string.h>
+#include <ctype.h>
 #include "phun.h"
 
-atom* stack[MAXSIZE];
-//position in the stack
-int pos = -1;
-//store first defined identifier in linked list of identifiers
-identifier* iHEAD = NULL;
-//for navigating list of defined identifiers
-identifier* iCURR;
-//for returning result
-atom* result = NULL;
+#define SUM  0
+#define DIFF 1
+#define PROD 2
+#define DIV  3
 
-atom *newAtom (identifierType type, int iVal, identifier* listHead) {
-    atom *a = malloc(sizeof (atom));
-    //type of operation identifier tracks
-    a->type = type;
-    //running result of operations
-    a->iVal = iVal;
-    //pointer to head of list attached to atom
-    a->listHead = listHead;
-    return (a);
+/*
+ * Evaluate the arguments for specific keywords and produce an expression
+ */
+expr *doQuote(exprs *ls) {
+    expr *val;
+
+    if (ls == NULL)
+        fatalError("Missing value for quote");
+    val = ls->e;
+    if (ls->n != NULL)
+        fatalError("Extra expressions in a quote");
+    /* Quoted, don't evaluate */
+    return (val);
 }
 
-identifier *newIdentifier(char* name, int data, identifier *next) {
-    identifier *i = malloc(sizeof (i));
-    i->name = name;
-    i->data = data;
-    //pointer to next value in identifier list
-    i->next = next;
-    return (i);
+expr *doCar(exprs *ls) {
+    expr *head;
+    if (ls == NULL)
+        fatalError("Missing argument for car");
+    head = eval(ls->e);
+    if (head->type != eExprList) 
+        fatalError("car not used on a list");      
+    return (head->eVal->e);
+}
+
+expr *doCdr(exprs *ls) {
+    expr *tail;
+    if (ls == NULL)
+        fatalError("Missing argument for cdr");
+    tail = eval(ls->e);
+    if (tail->type != eExprList) 
+        fatalError("cdr not used on a list");      
+    return (newListExpr(tail->eVal->n));
+}
+
+expr *doCons(exprs *ls) {
+    expr *head, *tail;
+    if (ls == NULL)
+        fatalError("Missing values for cons");
+    head = eval(ls->e);
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Missing second value for cons");
+    tail = eval(ls->e);
+    if (tail->type != eExprList) 
+        fatalError("Second value for cons is not a list");
+    
+    return (newListExpr (newExprList (head, tail->eVal))); 
+}
+
+expr *doList(exprs *ls) {
+    expr *head, *tail;
+    if (ls == NULL)
+        return (newListExpr (ls));
+    head = eval (ls->e);
+    tail = doList(ls->n);
+    if (tail == NULL)
+        return (newListExpr (newExprList (head, NULL)));
+    else
+        return (newListExpr (newExprList (head, tail->eVal)));
+}
+
+expr *doDefine(exprs *ls) {
+    expr *name;
+    expr *val;
+    symbol *s;
+    if (ls == NULL)
+        fatalError("Definition missing name and value");
+    name = ls->e;
+    if (name->type != eIdent)
+        fatalError("Missing identifier in a definition");
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Definition missing a value");
+    val = ls->e;
+    if (ls->n != NULL)
+        fatalError("Extra expressions in a definition");
+    val = eval(val);
+    s = lookup(name->sVal);
+    if (s != NULL) {
+        s->data = val;
+    } else {
+        bind(name->sVal,val);
+    }
+    return(NULL); /* don't want main to print anything, so return NULL */
+}
+
+expr *doParams(exprs *ls) {
+    expr *name;
+    expr *val;
+    symbol *s;
+    if (ls == NULL)
+        fatalError("Definition missing name and value");
+    name = ls->e;
+    if (name->type != eIdent)
+        fatalError("Missing identifier in a definition");
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Definition missing a value");
+    val = ls->e;
+    if (ls->n != NULL)
+        fatalError("Extra expressions in a definition");
+    val = eval(val);
+    s = lookup(name->sVal);
+    if (s != NULL) {
+        s->data = val;
+    } else {
+        bind(name->sVal,val);
+    }
+    return(NULL); /* don't want main to print anything, so return NULL */
+}
+
+expr *doDefineFunction(exprs *ls) {
+    expr *name;
+    expr *operation;
+    function *f;
+    if (ls == NULL)
+        fatalError("Definition missing name and value");
+    name = ls->e;
+    if (name->type != eIdent)
+        fatalError("Missing identifier in a definition");
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Definition missing a value");
+    operation = ls->e;
+    if (ls->n != NULL)
+        fatalError("Extra expressions in a definition");
+    //val = eval(val);
+    f = lookupFunction(name->sVal);
+    if (f != NULL) {
+        f->operation = operation;
+    } else {
+        bindFunction(name->sVal, operation);
+    }
+    return(NULL); /* don't want main to print anything, so return NULL */
 }
 
 /*
- * AST Dump for evaluation
+ * Evaluate the arguments for binary+ operators and then apply the operation
+ * - repeat as necessary for 3+ arguments in the list
  */
+expr *doBinaryOp(int op, exprs *ls) {
+    expr *val1, *val2;
+    int   i, j, k;
+    if (ls == NULL)
+        fatalError("Missing values for binary operator");
+    val1 = eval(ls->e);
+    if (val1->type != eInt) 
+        fatalError("First value for binary operation is not an int");      
+    i = val1->iVal;
+getAnother:
+    ls = ls->n;
+    if (ls == NULL)
+        fatalError("Missing second+ value for binary operation");
+    val2 = eval(ls->e);
+    if (val2->type != eInt) 
+        fatalError("Second+ value for binary operation is not an int");
+    j = val2->iVal;
+    switch (op) {
+        case SUM:  k = i + j; break;
+        case DIFF: k = i - j; break;
+        case PROD: k = i * j; break;
+        case DIV:  k = i / j; break;
+        default:
+            fatalError("Unknown error: Applying invalid operation");
+    }
+    i = k;
+    if (ls->n != NULL) goto getAnother;
+    return (newIntExpr(k));   
+}
 
-void evalExpr(expr *e, int n) {
+/*
+ * Evaluate an Expression
+ */ 
+expr *eval(expr *e) {
+    expr   *op;
+    exprs  *list;
+    symbol *s;
+    function *f;
+    
     switch (e->type) {
         case eString:
-            //not yet evaluated
-            printf("String: [%s]\n", e->sVal);
+            /* Not needed in assignment 6 */
+            /* Fall through */
+        case eInt:
+            return (e);
             break;
         case eIdent:
-            //identify in symbol table
-            symbolTable(e->sVal);
-            break;
-        case eInt:
-            //perform operation
-            performOperation(e->iVal);
+            s = lookup(e->sVal);
+            if (s == NULL)
+                fatalError("Unbound symbol");
+            return (s->data);
             break;
         case eExprList:
-            // do not evaluate empty list
-            if (e->eVal != NULL) {
-                //evaluate contents of list
-                evalList(e->eVal, n+1);
-                pop();
+            list = e->eVal;
+            op = list->e;
+            list = list->n;
+            if (op->type != eIdent) {
+                fatalError("Invalid operator in function application");
             }
+            if (!strcasecmp (op->sVal,"define")) {
+                //TODO: This is very fragile, could result in a seg fault easily
+                if (list->n->e->eVal != NULL && !strcasecmp (list->n->e->eVal->e->sVal,"lambda")) {
+                    // This means a function is being defined, add it to the function table
+                    //read the entire enclosed function
+                    return(doDefineFunction(list));
+                }
+                return (doDefine(list));
+            } else if (!strcasecmp (op->sVal,"lambda")) {
+                return (doParams(list));
+            } else if (!strcasecmp (op->sVal,"car")) {
+                return (doCar(list));
+            } else if (!strcasecmp (op->sVal,"cdr")) {
+                return (doCdr(list));
+            } else if (!strcasecmp (op->sVal,"cons")) {
+                return (doCons(list));
+            } else if (!strcasecmp (op->sVal, "quote")) {
+                return (doQuote(list));
+            } else if (!strcasecmp (op->sVal,"list")) {
+                return (doList(list));
+            } else if (!strcmp (op->sVal,"+")) {
+                return (doBinaryOp(SUM,list));
+            } else if (!strcmp (op->sVal,"-")) {
+                return (doBinaryOp(DIFF,list));
+            } else if (!strcmp (op->sVal,"*")) {
+                return (doBinaryOp(PROD,list));
+            } else if (!strcmp (op->sVal,"/")) {
+                return (doBinaryOp(DIV,list));
+            } else {
+                //check defined functions
+                f = lookupFunction(e->eVal->e->sVal);
+                if (f == NULL)
+                    evalError(e->eVal->e->sVal);
+                //put the values in the symbol table
+                symbol *param = f->fst.first;
+                //iterate through each value setting the data and binding it
+                for (int i = 0; i < f->fst.length; i++) {
+                    if (list->e->type == eIdent) {
+                        s = lookup(list->e->sVal);
+                        if (s == NULL)
+                            fatalError("Unbound symbol");
+                        param->data = s->data;
+                    } else if (list->e->type == eExprList){
+                        param->data = eval(list->e);
+                    } else if (list->e->type == eInt){
+                        param->data = list->e;
+                    } else {
+                        fatalError("Unknown operation");
+                    }
+                    bind(param->name, param->data);
+                    param = param->next;
+                    list = list->n;
+                }
+                return (eval(f->operation));
+            }                
             break;
         default:
             break;
     }
 }
 
-void symbolTable(char *sVal) {
-    //check for definition operation state
-    if (pos != -1 && stack[pos]->type == oDEFINE) {
-        //check if identifier is already defined and remove the old value
-        removeIdentifier(sVal);
-        //set the new identifier at the end of the list
-        setCurrentIdentifier();
-        iCURR->name = sVal;
-    }
-    else if (strcmp(sVal, "define") == 0) {
-        //set operation to definition
-        push(newAtom(oDEFINE, NULL, NULL));
-        if (iHEAD == NULL) {
-            //set the head to a new identifier
-            iHEAD = newIdentifier(NULL, NULL, NULL);
-        }
-        else {
-            //add a new identifier to the end of the list
-            setCurrentIdentifier();
-            iCURR->next = newIdentifier(NULL, NULL, NULL);
-        }
-    }
-    else if (strcmp(sVal, "car") == 0) {
-        //return the head of the list
-        push(newAtom(oCAR, NULL, newIdentifier(NULL, NULL, NULL)));
-    }
-    else if (strcmp(sVal, "cdr") == 0) {
-        //remove the head of the list
-        push(newAtom(oCDR, NULL, newIdentifier("(", NULL, NULL)));
-    }
-    else if (strcmp(sVal, "quote") == 0) {
-        //Add next value to list without evaluating
-        push(newAtom(oQUOTE, NULL, NULL));
-    }
-    else if (strcmp(sVal, "list") == 0) {
-        //return a list of the following atoms
-        push(newAtom(oLIST, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
-    }
-    else if (strcmp(sVal, "cons") == 0) {
-        //append item to list
-        push(newAtom(oCONS, NULL, newIdentifier("(", NULL, newIdentifier(")", NULL, NULL))));
-    }
-    //list operations require adding item to atom list
-    else if (pos != -1 && stack[pos]->type == oQUOTE){
-        addToList(sVal);
-    }
-    else {
-        //check for operation
-        switch (*sVal) {
-            case '+':
-                //push operation to stack
-                push(newAtom(oADD, NULL, NULL));
-                break;
-            case '-':
-                //set operation to subtraction
-                //push operation to stack
-                push(newAtom(oSUB, NULL, NULL));
-                break;
-            case '*':
-                //push operation to stack
-                push(newAtom(oMULT, NULL, NULL));
-                break;
-            case '/':
-                //push operation to stack
-                push(newAtom(oDIV, NULL, NULL));
-                break;
-            default:
-                //check defined identifiers
-                if (iHEAD != NULL) {
-                    iCURR = iHEAD;
-                    if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
-                        //identifier found, perform operation
-                        performOperation(iCURR->data);
-                        break;
-                    }
-                    //not the head value, iterate through the rest
-                    else {
-                        while (iCURR != NULL) {
-                            if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
-                                //identifier found
-                                performOperation(iCURR->data);
-                                break;
-                            }
-                            iCURR = iCURR->next;
-                        }
-                    }
-                }
-                if (iCURR == NULL) {
-                    //if this is reached identifier was not found
-                    fatalError ("Unknown identifier");
-                }
-                break;
-        }
+/*
+ * Print expressions in the format needed by the interpreter
+ */
+void exprPrint(expr *e) {
+    switch (e->type) {
+        case eString:
+            /* fall through */
+        case eIdent:
+            printf("%s", e->sVal);
+            break;
+        case eInt:
+            printf("%d", e->iVal);
+            break;
+        case eExprList:
+            printf("(");
+            listPrint(e->eVal);
+            printf(")");
+            break;
+        default:
+            break;
     }
 }
-
-void pop() {
-    if(pos >= 0) {
-        result = stack[pos];
-        pos = pos - 1;
-        //set the result in the current op from final value of the nested operation
-        if(pos >= 0 && result->iVal != NULL) {
-            performOperation(result->iVal);
-        }
+ 
+void listPrint(exprs *l) {
+    if (l == NULL) return;
+    exprPrint(l->e);
+    if (l->n != NULL) {
+      printf(" ");
+      listPrint(l->n);
     }
-}
-
-void push(atom *at) {
-    //add a value to the end of the stack
-    if (pos != MAXSIZE) {
-        pos = pos + 1;
-        stack[pos] = at;
-    } else {
-        //more operations than can fit on the stack
-        fatalError ("Stack overflow");
-    }
-
-}
-
-void performOperation(int value) {
-    //peek the stack
-    atom *at = stack[pos];
-    if (at->type == oDEFINE) {
-        //set the value of the custom identifier
-        setCurrentIdentifier();
-        iCURR->data = value;
-    }
-    else if (at->type == oQUOTE || at->type == oCONS || at->type == oLIST) {
-        //add to the end of the list
-        //first convert to char*
-        char* str;
-        //avoid buffer overflow
-        str = malloc(16);
-        //copy value to char*
-        snprintf(str, 16, "%d", value);
-        addToList(str);
-    }
-    else if (at->iVal == NULL) {
-        //value is first in operations
-        at->iVal = value;
-    } else {
-        switch (at->type) {
-            case oADD:
-                //add to value
-                at->iVal = at->iVal + value;
-                break;
-            case oSUB:
-                //sub from value
-                at->iVal = at->iVal - value;
-                break;
-            case oMULT:
-                //multiply value
-                at->iVal = at->iVal * value;
-                break;
-            case oDIV:
-                //divide value
-                at->iVal = at->iVal / value;
-                break;
-            default:
-                fatalError ("Unrecognized operation");
-                break;
-        }
-    }
-}
-
-void setCurrentIdentifier() {
-    //find the last custom identifier in the list
-    iCURR = iHEAD;
-    while (iCURR->next != NULL) {
-        iCURR = iCURR->next;
-    }
-}
-
-void removeIdentifier(char *sVal) {
-    //check defined identifiers for value, if found remove it
-    if (iHEAD != NULL) {
-        iCURR = iHEAD;
-        if (iCURR-> name != NULL && strcmp(sVal, iCURR->name) == 0) {
-            //identifier found, set as head to next which should exist
-            iHEAD = iCURR->next;
-            return;
-        }
-        //not the head value, check the rest
-        else {
-            while (iCURR != NULL) {
-                if (iCURR->next != NULL && iCURR->next->name != NULL && strcmp(sVal, iCURR->next->name) == 0) {
-                    //identifier found, remove
-                    if (iCURR->next->next != NULL) {
-                        //set next to skip value
-                        iCURR->next = iCURR->next->next;
-                    }
-                    else {
-                        //now the end of the list
-                        iCURR->next = NULL;
-                    }
-                    return;
-                }
-                iCURR = iCURR->next;
-            }
-        }
-    }
-}
-
-void addToList(char *sVal) {
-   //if car, set head list to value if not already set, this returns only the first value found
-    if(pos > 0 && stack[pos-1]->type == oCAR) {
-        if (stack[pos-1]->listHead->name == NULL) {
-            //set as first value in list
-            stack[pos-1]->listHead->name = sVal;
-        }
-    }
-    //if cdr, set list to remove first value
-    else if(pos > 0 && stack[pos-1]->type == oCDR && stack[pos-1]->listHead->next == NULL) {
-        //trick to skip first value, it just adds the closing bracket and continues
-        stack[pos-1]->listHead->next = newIdentifier(")", NULL, NULL);
-    }
-    else if (stack[pos]->type == oQUOTE){
-        //set the previous atom
-        //go to end of list
-        identifier *endOfList = stack[pos - 1]->listHead;
-        while (endOfList->next->name != ")") {
-            endOfList = endOfList->next;
-        }
-        //add new value as next with closing quote
-        endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
-    }
-    else {
-        //set the current atom
-        //go to end of list
-        identifier *endOfList = stack[pos]->listHead;
-        while (endOfList->next->name != ")") {
-            endOfList = endOfList->next;
-        }
-        //add new value as next with closing quote
-        endOfList->next = newIdentifier(sVal, NULL, newIdentifier(")", NULL, NULL));
-    }
-}
-
-atom* evalList(exprs *l, int n) {
-    if (l == NULL) return NULL;
-    evalExpr(l->e, n);
-    evalList(l->n, n);
-    //return end result from last value in stack
-    return result;
 }
 
 /* end of eval.c */

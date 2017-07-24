@@ -5,7 +5,6 @@
  */
  
 #include <stdio.h>
-#include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
 #include "phun.h"
@@ -14,7 +13,7 @@
 #define BUFLEN 1024
 
 /*
- * Used for printing during lex if needed.
+ * Used for debugging only.
  */
 void printToken (token t) {
    printf("Token: ");

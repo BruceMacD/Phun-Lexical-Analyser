@@ -247,12 +247,23 @@ expr *eval(expr *e) {
                 //check defined functions
                 f = lookupFunction(e->eVal->e->sVal);
                 if (f == NULL)
-                    fatalError("Unbound operator in function application");
+                    evalError(e->eVal->e->sVal);
                 //put the values in the symbol table
                 symbol *param = f->fst.first;
                 //iterate through each value setting the data and binding it
                 for (int i = 0; i < f->fst.length; i++) {
-                    param->data = list->e;
+                    if (list->e->type == eIdent) {
+                        s = lookup(list->e->sVal);
+                        if (s == NULL)
+                            fatalError("Unbound symbol");
+                        param->data = s->data;
+                    } else if (list->e->type == eExprList){
+                        param->data = eval(list->e);
+                    } else if (list->e->type == eInt){
+                        param->data = list->e;
+                    } else {
+                        fatalError("Unknown operation");
+                    }
                     bind(param->name, param->data);
                     param = param->next;
                     list = list->n;

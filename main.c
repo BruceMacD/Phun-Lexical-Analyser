@@ -35,6 +35,11 @@ void fatalError (char *msg) {
     exit(FAILURE);
 }
 
+void evalError (char *name) {
+    printf("Evaluation Error: Unbound function %s\n", name);
+    exit(FAILURE);
+}
+
 /*
  * Read one character at a time from the input file
  * and update the index for error messages

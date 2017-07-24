@@ -71,6 +71,7 @@ typedef struct funtabF {
 /* ---------------------------- PROTOTYPES ---------------------------- */
 
 void fatalError (char *msg);
+void evalError (char *name);
 char nextChar ();
 void returnChar (char c);
 
